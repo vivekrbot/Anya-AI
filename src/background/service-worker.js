@@ -1,6 +1,6 @@
-import { MESSAGE_TYPES, GROQ_API_URL } from '../shared/constants.js';
+import { MESSAGE_TYPES, GROQ_API_URL, MAX_TEXT_LENGTH } from '../shared/constants.js';
 import { getApiKey, getSettings } from '../shared/storage.js';
-import { buildPrompt } from '../shared/prompts.js';
+import { buildPrompt, buildCommentPrompt } from '../shared/prompts.js';
 
 // Inject content script into the active tab (idempotent — guarded in content-script.js)
 async function ensureContentScript(tabId) {
@@ -79,9 +79,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   // Ignore messages not meant for the service worker
   if (
     message.type === 'SELECTION_UPDATED' ||
+    message.type === 'POST_CONTENT_UPDATED' ||
     message.type === MESSAGE_TYPES.GET_SELECTION ||
     message.type === MESSAGE_TYPES.REPLACE_SELECTION ||
-    message.type === MESSAGE_TYPES.INSERT_TEXT
+    message.type === MESSAGE_TYPES.INSERT_TEXT ||
+    message.type === MESSAGE_TYPES.EXTRACT_POST_CONTENT
   ) {
     return false;
   }
@@ -89,6 +91,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type === MESSAGE_TYPES.PROCESS_TEXT) {
     (async function () {
       try {
+        if (!message.text || typeof message.text !== 'string') {
+          sendResponse({ error: 'No text provided.' });
+          return;
+        }
+        if (message.text.length > MAX_TEXT_LENGTH) {
+          sendResponse({ error: 'Text exceeds maximum length (' + MAX_TEXT_LENGTH + ' chars).' });
+          return;
+        }
+
         var apiKey = await getApiKey();
         if (!apiKey) {
           sendResponse({
@@ -98,10 +109,18 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         }
 
         var settings = await getSettings();
-        var prompt = buildPrompt(message.action, message.text, {
-          commentMode: message.commentMode || false,
-          isInInput: message.isInInput || false,
-        });
+        var prompt;
+        if (message.commentAction) {
+          prompt = buildCommentPrompt(message.action, message.text, {
+            tone: message.tone || 'auto',
+            length: message.length || 'auto',
+          });
+        } else {
+          prompt = buildPrompt(message.action, message.text, {
+            commentMode: message.commentMode || false,
+            isInInput: message.isInInput || false,
+          });
+        }
 
         var msgs = [
           { role: 'system', content: prompt.system },

@@ -114,10 +114,220 @@ if (!window.__anyaAiLoaded) {
     }
   }
 
+  // --- LinkedIn / Social Post Extraction (class-name-independent) ---
+
+  // Find the post container by walking up from an element
+  function findPostContainer(el) {
+    if (!el) return null;
+    let current = el;
+    while (current && current !== document.body) {
+      // Primary: LinkedIn uses data-urn on post containers
+      if (current.hasAttribute('data-urn')) {
+        const urn = current.getAttribute('data-urn');
+        if (urn.includes('activity') || urn.includes('ugcPost') || urn.includes('share')) {
+          return current;
+        }
+      }
+      // Secondary: article elements are common post wrappers
+      if (current.tagName === 'ARTICLE') {
+        return current;
+      }
+      current = current.parentElement;
+    }
+    // Tertiary: walk up again looking for a medium-sized container with text
+    current = el;
+    while (current && current !== document.body) {
+      const rect = current.getBoundingClientRect();
+      if (rect.height > 200 && rect.height < 3000 && rect.width > 250) {
+        const textLen = (current.innerText || '').length;
+        if (textLen > 80 && textLen < 15000) {
+          return current;
+        }
+      }
+      current = current.parentElement;
+    }
+    return null;
+  }
+
+  // Extract the main post text from a container (skip comments, buttons, inputs)
+  function extractPostText(container) {
+    // Strategy A: collect text from span[dir="ltr"] — LinkedIn wraps post body in these
+    const ltrSpans = container.querySelectorAll('span[dir="ltr"]');
+    let bestLtr = '';
+    for (const span of ltrSpans) {
+      // Skip spans inside comment areas or editable inputs
+      if (span.closest('[contenteditable="true"]')) continue;
+      if (span.closest('[role="textbox"]')) continue;
+      if (span.closest('button')) continue;
+      const t = (span.innerText || span.textContent || '').trim();
+      if (t.length > bestLtr.length) bestLtr = t;
+    }
+    if (bestLtr.length > 40) return bestLtr;
+
+    // Strategy B: find the largest text block in div/p/span elements
+    let bestBlock = '';
+    const blocks = container.querySelectorAll('div, p, span, article');
+    for (const block of blocks) {
+      if (block.closest('[contenteditable="true"]')) continue;
+      if (block.closest('[role="textbox"]')) continue;
+      if (block.closest('button')) continue;
+      // Skip elements that are mostly interactive (many buttons/links relative to text)
+      const btnCount = block.querySelectorAll('button, a').length;
+      if (btnCount > 5 && block.children.length > 0) continue;
+      const t = (block.innerText || '').trim();
+      // Must be substantial text but not the entire page
+      if (t.length > 40 && t.length < 5000 && t.length > bestBlock.length) {
+        bestBlock = t;
+      }
+    }
+    return bestBlock;
+  }
+
+  function cleanPostText(text) {
+    if (!text) return '';
+    // Remove "...see more" / "…more"
+    text = text.replace(/…\s*(see more|more)\s*$/i, '');
+    text = text.replace(/\.\.\.\s*(see more|more)\s*$/i, '');
+    // Remove engagement lines
+    text = text.replace(/^\s*(liked by|loves?|celebrates?|insightful|funny|repost)\b.*$/gim, '');
+    // Remove repost headers
+    text = text.replace(/^\w+.*reposted\s*(this)?\s*/i, '');
+    // Remove hashtag spam at the end
+    text = text.replace(/(#\w+\s*){4,}$/, '');
+    // Clean whitespace
+    text = text.replace(/\n{3,}/g, '\n\n').trim();
+    return text;
+  }
+
+  // Cache the last extracted post so the side panel can retrieve it
+  let lastExtractedPost = '';
+
+  function extractLinkedInPostContent() {
+    const hostname = window.location.hostname;
+    if (!hostname.includes('linkedin.com')) {
+      return { text: '' };
+    }
+
+    // Strategy 1: find post from the currently focused/active element
+    const activeEl = document.activeElement;
+    if (activeEl) {
+      const container = findPostContainer(activeEl);
+      if (container) {
+        const text = cleanPostText(extractPostText(container));
+        if (text) {
+          lastExtractedPost = text;
+          return { text };
+        }
+      }
+    }
+
+    // Strategy 2: find ALL contenteditable elements (comment inputs) and walk up
+    const editables = document.querySelectorAll('[contenteditable="true"], [role="textbox"]');
+    for (let i = editables.length - 1; i >= 0; i--) {
+      const container = findPostContainer(editables[i]);
+      if (container) {
+        const text = cleanPostText(extractPostText(container));
+        if (text) {
+          lastExtractedPost = text;
+          return { text };
+        }
+      }
+    }
+
+    // Strategy 3: first visible post in the viewport
+    const allUrns = document.querySelectorAll('[data-urn]');
+    for (const el of allUrns) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0 && rect.height > 150) {
+        const text = cleanPostText(extractPostText(el));
+        if (text) {
+          lastExtractedPost = text;
+          return { text };
+        }
+      }
+    }
+
+    // Strategy 4: any visible article element
+    const articles = document.querySelectorAll('article');
+    for (const article of articles) {
+      const rect = article.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        const text = cleanPostText(extractPostText(article));
+        if (text) {
+          lastExtractedPost = text;
+          return { text };
+        }
+      }
+    }
+
+    // Return cached if all strategies fail
+    if (lastExtractedPost) return { text: lastExtractedPost };
+    return { text: '' };
+  }
+
+  function notifyPostContent(text) {
+    chrome.runtime.sendMessage({
+      type: 'POST_CONTENT_UPDATED',
+      text: text,
+    }).catch(function() {});
+  }
+
+  // --- Auto-detection on LinkedIn ---
+  if (window.location.hostname.includes('linkedin.com')) {
+    // 1. Detect focus on ANY editable element (comment boxes, reply inputs)
+    document.addEventListener('focusin', (e) => {
+      const el = e.target;
+      if (el.getAttribute('contenteditable') === 'true' ||
+          el.getAttribute('role') === 'textbox' ||
+          el.tagName === 'TEXTAREA') {
+        // Delay slightly so LinkedIn's DOM settles after clicking Comment
+        setTimeout(() => {
+          const result = extractLinkedInPostContent();
+          if (result.text) notifyPostContent(result.text);
+        }, 300);
+      }
+    });
+
+    // 2. Watch for new contenteditable elements being added (comment box appearing)
+    let observerTimer = null;
+    const postObserver = new MutationObserver((mutations) => {
+      // Throttle: only process once per 500ms to avoid perf issues on busy pages
+      if (observerTimer) return;
+      let found = false;
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType !== Node.ELEMENT_NODE) continue;
+          const hasEditable = (node.getAttribute && node.getAttribute('contenteditable') === 'true') ||
+                              (node.querySelector && node.querySelector('[contenteditable="true"], [role="textbox"]'));
+          if (hasEditable) { found = true; break; }
+        }
+        if (found) break;
+      }
+      if (found) {
+        observerTimer = setTimeout(() => {
+          observerTimer = null;
+          const result = extractLinkedInPostContent();
+          if (result.text) notifyPostContent(result.text);
+        }, 500);
+      }
+    });
+    postObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
   // Direct listener — only handle messages meant for content script.
   // Do NOT call sendResponse for unrecognized messages so other
   // listeners (service worker) can handle them.
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'EXTRACT_POST_CONTENT') {
+      const result = extractLinkedInPostContent();
+      if (!result.text && cachedSelection) {
+        sendResponse({ text: cachedSelection });
+      } else {
+        sendResponse(result);
+      }
+      return false;
+    }
+
     if (message.type === 'GET_SELECTION') {
       sendResponse({
         text: cachedSelection,

@@ -9,12 +9,23 @@ export const ACTIONS = {
   HARVEY_TONE: 'harvey_tone',
 };
 
+export const COMMENT_ACTIONS = {
+  AGREE_AND_ADD: 'agree_and_add',
+  RESPECTFUL_CHALLENGE: 'respectful_challenge',
+  ASK_A_QUESTION: 'ask_a_question',
+  SHARE_EXPERIENCE: 'share_experience',
+  ADD_INSIGHT: 'add_insight',
+  BE_SUPPORTIVE: 'be_supportive',
+  PROFESSIONAL: 'professional_comment',
+};
+
 export const MESSAGE_TYPES = {
   GET_SELECTION: 'GET_SELECTION',
   REPLACE_SELECTION: 'REPLACE_SELECTION',
   INSERT_TEXT: 'INSERT_TEXT',
   PROCESS_TEXT: 'PROCESS_TEXT',
   VALIDATE_KEY: 'VALIDATE_KEY',
+  EXTRACT_POST_CONTENT: 'EXTRACT_POST_CONTENT',
 };
 
 export const MODELS = [

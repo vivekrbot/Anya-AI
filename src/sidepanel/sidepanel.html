@@ -17,7 +17,7 @@
       </div>
     </header>
 
-    <!-- Comment Mode -->
+    <!-- Comment Mode Toggle -->
     <div class="comment-mode">
       <div class="comment-mode-info">
         <span class="comment-mode-title">Comment Mode</span>
@@ -29,88 +29,178 @@
       </label>
     </div>
 
-    <!-- Selected Text -->
-    <div class="section">
-      <div class="section-header">
-        <div class="section-label">SELECTED TEXT</div>
-        <div class="section-actions">
-          <button id="btnRefresh" class="icon-btn" title="Refresh selection">
-            <span class="material-symbols-outlined">refresh</span>
+    <!-- ============ WRITING MODE VIEW (default) ============ -->
+    <div id="writingView">
+      <!-- Selected Text -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-label">SELECTED TEXT</div>
+          <div class="section-actions">
+            <button id="btnRefresh" class="icon-btn" title="Refresh selection">
+              <span class="material-symbols-outlined">refresh</span>
+            </button>
+            <button id="btnClear" class="icon-btn" title="Clear text">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+        <textarea id="selectedText" class="text-area" placeholder="Text Content Here...." readonly></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="section">
+        <div class="section-label">ACTIONS</div>
+        <div class="actions-list">
+          <button class="action-btn" data-action="improve_writing">
+            <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">edit_note</span>
+            <span class="action-label">Improve Writing</span>
           </button>
-          <button id="btnClear" class="icon-btn" title="Clear text">
-            <span class="material-symbols-outlined">close</span>
+          <button class="action-btn" data-action="fix_grammar">
+            <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">check_circle</span>
+            <span class="action-label">Fix Grammar</span>
+          </button>
+          <button class="action-btn" data-action="professional_tone">
+            <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">business_center</span>
+            <span class="action-label">Professional Tone</span>
+          </button>
+          <button class="action-btn" data-action="friendly_tone">
+            <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">waving_hand</span>
+            <span class="action-label">Friendly Tone</span>
+          </button>
+          <button class="action-btn" data-action="shorten">
+            <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">compress</span>
+            <span class="action-label">Shorten</span>
+          </button>
+          <button class="action-btn" data-action="expand">
+            <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">expand</span>
+            <span class="action-label">Expand</span>
           </button>
         </div>
       </div>
-      <textarea id="selectedText" class="text-area" placeholder="Text Content Here...." readonly></textarea>
-    </div>
 
-    <!-- Actions -->
-    <div class="section">
-      <div class="section-label">ACTIONS</div>
-      <div class="actions-list">
-        <button class="action-btn" data-action="improve_writing">
-          <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">edit_note</span>
-          <span class="action-label">Improve Writing</span>
-        </button>
-        <button class="action-btn" data-action="fix_grammar">
-          <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">check_circle</span>
-          <span class="action-label">Fix Grammar</span>
-        </button>
-        <button class="action-btn" data-action="professional_tone">
-          <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">business_center</span>
-          <span class="action-label">Professional Tone</span>
-        </button>
-        <button class="action-btn" data-action="friendly_tone">
-          <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">waving_hand</span>
-          <span class="action-label">Friendly Tone</span>
-        </button>
-        <button class="action-btn" data-action="shorten">
-          <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">compress</span>
-          <span class="action-label">Shorten</span>
-        </button>
-        <button class="action-btn" data-action="expand">
-          <span class="action-icon material-symbols-outlined" style="color: #00BFA5;">expand</span>
-          <span class="action-label">Expand</span>
-        </button>
+      <!-- Divider -->
+      <hr class="divider">
+
+      <!-- Quick Actor -->
+      <div class="section">
+        <div class="section-label">QUICK ACTOR</div>
+        <div class="actions-list">
+          <button class="action-btn" data-action="frank_tone">
+            <span class="action-icon material-symbols-outlined" style="color: #FF6B4A;">cottage</span>
+            <span class="action-label">Frank Tone</span>
+          </button>
+          <button class="action-btn" data-action="harvey_tone">
+            <span class="action-icon material-symbols-outlined" style="color: #E53935;">balance</span>
+            <span class="action-label">Harvey Tone</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Result Panel (hidden by default) -->
+      <div id="resultPanel" class="result-panel hidden">
+        <div class="section-label">RESULT</div>
+        <div id="resultText" class="result-text"></div>
+        <div class="result-actions">
+          <button id="btnReplace" class="result-btn">
+            <span class="material-symbols-outlined">find_replace</span>
+            Replace
+          </button>
+          <button id="btnInsert" class="result-btn">
+            <span class="material-symbols-outlined">add_circle</span>
+            Insert
+          </button>
+          <button id="btnCopy" class="result-btn">
+            <span class="material-symbols-outlined">content_copy</span>
+            Copy
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Divider -->
-    <hr class="divider">
-
-    <!-- Quick Actor -->
-    <div class="section">
-      <div class="section-label">QUICK ACTOR</div>
-      <div class="actions-list">
-        <button class="action-btn" data-action="frank_tone">
-          <span class="action-icon material-symbols-outlined" style="color: #FF6B4A;">cottage</span>
-          <span class="action-label">Frank Tone</span>
-        </button>
-        <button class="action-btn" data-action="harvey_tone">
-          <span class="action-icon material-symbols-outlined" style="color: #E53935;">balance</span>
-          <span class="action-label">Harvey Tone</span>
-        </button>
+    <!-- ============ COMMENT MODE VIEW (hidden by default) ============ -->
+    <div id="commentView" class="hidden">
+      <!-- Content -->
+      <div class="section">
+        <div class="section-label">CONTENT</div>
+        <div id="postContentText" class="post-content-text">Text Placeholder here...</div>
+        <button id="btnRefreshPost" class="refresh-post-btn">Refresh</button>
       </div>
-    </div>
 
-    <!-- Result Panel (hidden by default) -->
-    <div id="resultPanel" class="result-panel hidden">
-      <div class="section-label">RESULT</div>
-      <div id="resultText" class="result-text"></div>
-      <div class="result-actions">
-        <button id="btnReplace" class="result-btn">
-          <span class="material-symbols-outlined">find_replace</span>
-          Replace
-        </button>
-        <button id="btnInsert" class="result-btn">
-          <span class="material-symbols-outlined">add_circle</span>
-          Insert
-        </button>
-        <button id="btnCopy" class="result-btn">
-          <span class="material-symbols-outlined">content_copy</span>
-          Copy
-        </button>
+      <!-- Comment Mode Actions -->
+      <div class="section">
+        <div class="section-label">COMMENT MODE</div>
+        <div class="comment-actions-list">
+          <button class="comment-action-btn" data-comment-action="agree_and_add">
+            <span class="comment-action-icon material-symbols-outlined">subject</span>
+            <span class="comment-action-label">Agree & Add</span>
+          </button>
+          <button class="comment-action-btn" data-comment-action="respectful_challenge">
+            <span class="comment-action-icon material-symbols-outlined">subject</span>
+            <span class="comment-action-label">Respectful Challenge</span>
+          </button>
+          <button class="comment-action-btn" data-comment-action="ask_a_question">
+            <span class="comment-action-icon material-symbols-outlined">subject</span>
+            <span class="comment-action-label">Ask a Question</span>
+          </button>
+          <button class="comment-action-btn" data-comment-action="share_experience">
+            <span class="comment-action-icon material-symbols-outlined">subject</span>
+            <span class="comment-action-label">Share Experience</span>
+          </button>
+          <button class="comment-action-btn" data-comment-action="add_insight">
+            <span class="comment-action-icon material-symbols-outlined">subject</span>
+            <span class="comment-action-label">Add Insight</span>
+          </button>
+          <button class="comment-action-btn" data-comment-action="be_supportive">
+            <span class="comment-action-icon material-symbols-outlined">subject</span>
+            <span class="comment-action-label">Be Supportive</span>
+          </button>
+          <button class="comment-action-btn" data-comment-action="professional_comment">
+            <span class="comment-action-icon material-symbols-outlined">subject</span>
+            <span class="comment-action-label">Professional</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <hr class="divider">
+
+      <!-- Quick Actor Dropdowns -->
+      <div class="section">
+        <div class="section-label">QUICK ACTOR</div>
+        <div class="quick-actor-row">
+          <div class="select-wrapper">
+            <select id="toneSelect">
+              <option value="auto">Tone: Auto</option>
+              <option value="casual">Tone: Casual</option>
+              <option value="professional">Tone: Professional</option>
+              <option value="enthusiastic">Tone: Enthusiastic</option>
+              <option value="thoughtful">Tone: Thoughtful</option>
+            </select>
+          </div>
+          <div class="select-wrapper">
+            <select id="lengthSelect">
+              <option value="auto">Length: Auto</option>
+              <option value="short">Length: Short</option>
+              <option value="medium">Length: Medium</option>
+              <option value="long">Length: Long</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate Comment Button -->
+      <div class="section" id="generateSection">
+        <button id="btnGenerateComment" class="generate-comment-btn">Generate Comment</button>
+      </div>
+
+      <!-- Comment Result Panel (hidden by default) -->
+      <div id="commentResultPanel" class="section hidden">
+        <textarea id="commentResultText" class="comment-result-textarea" placeholder="Text Generated Here...."></textarea>
+        <div class="comment-result-actions">
+          <button id="btnInsertComment" class="comment-result-btn outline-btn">Insert</button>
+          <button id="btnCopyComment" class="comment-result-btn outline-btn">Copy</button>
+          <button id="btnTryDifferent" class="comment-result-btn filled-btn">Try Different</button>
+        </div>
       </div>
     </div>
 

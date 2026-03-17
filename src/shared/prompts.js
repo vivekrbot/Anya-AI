@@ -1,4 +1,4 @@
-import { ACTIONS } from './constants.js';
+import { ACTIONS, COMMENT_ACTIONS } from './constants.js';
 
 const ACTION_PROMPTS = {
   [ACTIONS.IMPROVE_WRITING]: {
@@ -46,6 +46,50 @@ const COMMENT_MODE_PROMPTS = {
   },
 };
 
+const COMMENT_ACTION_PROMPTS = {
+  [COMMENT_ACTIONS.AGREE_AND_ADD]: {
+    system: 'You are a social media engagement expert. Generate a comment that agrees with the post and adds a complementary point, fact, or perspective that enriches the discussion.',
+    instruction: 'Write a comment that agrees with and builds on this post:',
+  },
+  [COMMENT_ACTIONS.RESPECTFUL_CHALLENGE]: {
+    system: 'You are a thoughtful social media commentator. Generate a comment that respectfully challenges or offers an alternative perspective to the post. Be diplomatic but genuinely thought-provoking.',
+    instruction: 'Write a comment that respectfully challenges this post:',
+  },
+  [COMMENT_ACTIONS.ASK_A_QUESTION]: {
+    system: 'You are an engaged reader. Generate a thoughtful, genuine question about the post that shows you read it carefully and want to learn more.',
+    instruction: 'Write a question comment for this post:',
+  },
+  [COMMENT_ACTIONS.SHARE_EXPERIENCE]: {
+    system: 'You are a relatable commenter. Generate a comment that shares a brief, relevant personal or professional experience related to the post topic.',
+    instruction: 'Write a comment sharing a relevant experience for this post:',
+  },
+  [COMMENT_ACTIONS.ADD_INSIGHT]: {
+    system: 'You are a knowledgeable professional. Generate a comment that adds a new insight, data point, or perspective the post didn\'t cover.',
+    instruction: 'Write a comment that adds insight to this post:',
+  },
+  [COMMENT_ACTIONS.BE_SUPPORTIVE]: {
+    system: 'You are an encouraging colleague. Generate a warm, supportive comment that acknowledges the poster\'s message and encourages them.',
+    instruction: 'Write a supportive comment for this post:',
+  },
+  [COMMENT_ACTIONS.PROFESSIONAL]: {
+    system: 'You are a polished professional commentator. Generate a formal, well-crafted comment that adds value to the discussion in a business-appropriate manner.',
+    instruction: 'Write a professional comment for this post:',
+  },
+};
+
+const TONE_MODIFIERS = {
+  casual: 'Use a casual, conversational tone.',
+  professional: 'Use a formal, professional tone.',
+  enthusiastic: 'Use an enthusiastic, energetic tone.',
+  thoughtful: 'Use a thoughtful, reflective tone.',
+};
+
+const LENGTH_MODIFIERS = {
+  short: 'Keep the comment to 1-2 sentences maximum.',
+  medium: 'Keep the comment to 2-3 sentences.',
+  long: 'Write a detailed comment of 4-5 sentences.',
+};
+
 export function buildPrompt(action, text, { commentMode = false, isInInput = false } = {}) {
   if (commentMode) {
     const mode = isInInput ? 'rewrite' : 'reply';
@@ -78,4 +122,25 @@ export function buildPrompt(action, text, { commentMode = false, isInInput = fal
     system: actionPrompt.system,
     user: `${actionPrompt.instruction}\n\n${text}`,
   };
+}
+
+export function buildCommentPrompt(action, text, { tone = 'auto', length = 'auto' } = {}) {
+  const prompt = COMMENT_ACTION_PROMPTS[action];
+  if (!prompt) {
+    return {
+      system: 'You are a social media comment assistant. Generate a relevant, engaging comment. Return only the comment text.',
+      user: `Write a comment for this post:\n\n${text}`,
+    };
+  }
+
+  let system = prompt.system;
+  if (tone !== 'auto' && TONE_MODIFIERS[tone]) {
+    system += ' ' + TONE_MODIFIERS[tone];
+  }
+  if (length !== 'auto' && LENGTH_MODIFIERS[length]) {
+    system += ' ' + LENGTH_MODIFIERS[length];
+  }
+  system += ' Return only the comment text with no preamble, quotes, labels, or explanation.';
+
+  return { system, user: `${prompt.instruction}\n\n${text}` };
 }

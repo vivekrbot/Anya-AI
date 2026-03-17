@@ -51,10 +51,6 @@ body {
   gap: 10px;
 }
 
-.logo-icon {
-  flex-shrink: 0;
-}
-
 .logo-text {
   font-size: 18px;
   font-weight: 700;
@@ -417,6 +413,211 @@ body {
 
 .settings-btn .material-symbols-outlined {
   font-size: 20px;
+}
+
+/* ========== Comment Mode View ========== */
+
+.post-content-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 40px;
+  max-height: 100px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.refresh-post-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refresh-post-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* Comment Action Buttons (2-column grid, matches writing mode) */
+.comment-actions-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.comment-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  overflow: hidden;
+}
+
+.comment-action-btn:hover {
+  border-color: var(--teal);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.comment-action-btn:active {
+  transform: translateY(0);
+}
+
+.comment-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.comment-action-btn.active {
+  border-color: var(--teal);
+  background: var(--teal-light);
+}
+
+.comment-action-icon {
+  font-size: 14px;
+  color: var(--teal);
+  flex-shrink: 0;
+}
+
+.comment-action-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Quick Actor Dropdowns */
+.quick-actor-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.select-wrapper select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  appearance: auto;
+}
+
+.select-wrapper select:focus {
+  border-color: var(--teal);
+}
+
+/* Generate Comment Button */
+.generate-comment-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--teal);
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.generate-comment-btn:hover {
+  opacity: 0.9;
+}
+
+.generate-comment-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Comment Result */
+.comment-result-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text-primary);
+  resize: vertical;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.comment-result-textarea:focus {
+  border-color: var(--teal);
+}
+
+.comment-result-textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+.comment-result-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.comment-result-btn {
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.outline-btn {
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.outline-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.filled-btn {
+  border: none;
+  background: var(--text-primary);
+  color: white;
+}
+
+.filled-btn:hover {
+  opacity: 0.85;
 }
 
 /* Utility */
