@@ -1,0 +1,14 @@
+{
+  "name": "anya-ai",
+  "version": "1.0.0",
+  "description": "Anya AI — Chrome Extension AI Writing Assistant",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/build.js --dev",
+    "build": "node scripts/build.js",
+    "package": "bash scripts/package.sh"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}
