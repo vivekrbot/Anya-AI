@@ -391,6 +391,14 @@ body {
   justify-content: flex-end;
 }
 
+.footer-text {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-right: auto;
+  display: grid;
+  align-items: center;
+}
+
 .settings-btn {
   background: none;
   border: none;
