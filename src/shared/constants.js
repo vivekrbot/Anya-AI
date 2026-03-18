@@ -17,6 +17,11 @@ export const COMMENT_ACTIONS = {
   ADD_INSIGHT: 'add_insight',
   BE_SUPPORTIVE: 'be_supportive',
   PROFESSIONAL: 'professional_comment',
+  CONGRATULATE: 'congratulate',
+  HOT_TAKE: 'hot_take',
+  STORYTELLING: 'storytelling',
+  OFFER_HELP: 'offer_help',
+  ONE_LINER: 'one_liner',
 };
 
 export const MESSAGE_TYPES = {
