@@ -96,13 +96,17 @@ chrome.runtime.onMessage.addListener((message) => {
     isInInput = message.isInInput || false;
     // Also update comment mode content if toggle is on
     if (commentModeToggle.checked) {
+      const isNewContent = message.text !== commentPostContent;
       commentPostContent = message.text;
       postContentText.textContent = message.text;
+      if (isNewContent) resetCommentResult();
     }
   }
   if (message.type === 'POST_CONTENT_UPDATED' && message.text) {
+    const isNewContent = message.text !== commentPostContent;
     commentPostContent = message.text;
     postContentText.textContent = message.text;
+    if (isNewContent) resetCommentResult();
   }
 });
 
@@ -149,6 +153,7 @@ $$('.comment-action-btn').forEach((btn) => {
 
 // Refresh post content
 $('#btnRefreshPost').addEventListener('click', () => {
+  resetCommentResult();
   extractPostContent();
 });
 

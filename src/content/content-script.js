@@ -114,33 +114,83 @@ if (!window.__anyaAiLoaded) {
     }
   }
 
-  // --- LinkedIn / Social Post Extraction (class-name-independent) ---
+  // --- LinkedIn / Social Post Extraction ---
+
+  // Elements to ALWAYS skip — UI chrome, modals, video players, nav
+  const JUNK_SELECTORS = [
+    'dialog', '[role="dialog"]', '[role="alertdialog"]', '[aria-modal="true"]',
+    'video', '[class*="video-player"]', '[class*="vjs-"]', '[class*="player-"]',
+    '[class*="caption"]', '[class*="subtitle"]', '[class*="closed-caption"]',
+    '[class*="modal"]', '[class*="overlay"]', '[class*="popover"]', '[class*="tooltip"]',
+    '[class*="dropdown"]', '[class*="menu-"]', '[role="menu"]', '[role="listbox"]',
+    'nav', '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]',
+    '[class*="scaffold-layout__aside"]', '[class*="msg-overlay"]',
+    '[class*="share-box"]', '[class*="ad-banner"]',
+    '[contenteditable="true"]', '[role="textbox"]',
+    'button', 'select', 'label',
+  ].join(',');
+
+  // Words that signal UI chrome, not post content
+  const UI_JUNK_WORDS = [
+    'dialog window', 'escape will cancel', 'close modal', 'font size', 'font family',
+    'text edge style', 'opacity', 'opaque', 'semi-transparent', 'transparent',
+    'caption area', 'text background', 'textcolor', 'monospace', 'proportional',
+    'sans-serif', 'small caps', 'drop shadow', 'reset done', 'raised', 'depressed',
+    'uniform', 'end of dialog', 'beginning of dialog',
+    'cookie', 'privacy policy', 'terms of service', 'accept all',
+  ];
+
+  // Check if text is UI garbage vs real post content
+  function isJunkText(text) {
+    if (!text) return true;
+    const lower = text.toLowerCase();
+    // Matches 2+ UI junk patterns → definitely UI chrome
+    let junkHits = 0;
+    for (const junk of UI_JUNK_WORDS) {
+      if (lower.includes(junk)) junkHits++;
+      if (junkHits >= 2) return true;
+    }
+    // High ratio of very short "words" (button labels like "Red Green Blue Yellow")
+    const words = text.split(/\s+/);
+    if (words.length > 10) {
+      const shortWords = words.filter(w => w.length <= 4).length;
+      if (shortWords / words.length > 0.7) return true;
+    }
+    return false;
+  }
+
+  // Check if an element is inside a junk area
+  function isInsideJunk(el) {
+    if (!el) return true;
+    return !!el.closest(JUNK_SELECTORS);
+  }
 
   // Find the post container by walking up from an element
   function findPostContainer(el) {
     if (!el) return null;
     let current = el;
+
+    // Pass 1: look for LinkedIn data-urn or article
     while (current && current !== document.body) {
-      // Primary: LinkedIn uses data-urn on post containers
       if (current.hasAttribute('data-urn')) {
         const urn = current.getAttribute('data-urn');
         if (urn.includes('activity') || urn.includes('ugcPost') || urn.includes('share')) {
           return current;
         }
       }
-      // Secondary: article elements are common post wrappers
       if (current.tagName === 'ARTICLE') {
         return current;
       }
       current = current.parentElement;
     }
-    // Tertiary: walk up again looking for a medium-sized container with text
+
+    // Pass 2: look for a reasonably-sized container with real text
     current = el;
     while (current && current !== document.body) {
       const rect = current.getBoundingClientRect();
       if (rect.height > 200 && rect.height < 3000 && rect.width > 250) {
-        const textLen = (current.innerText || '').length;
-        if (textLen > 80 && textLen < 15000) {
+        const raw = (current.innerText || '').trim();
+        if (raw.length > 80 && raw.length < 15000 && !isJunkText(raw)) {
           return current;
         }
       }
@@ -149,34 +199,44 @@ if (!window.__anyaAiLoaded) {
     return null;
   }
 
-  // Extract the main post text from a container (skip comments, buttons, inputs)
+  // Extract the main post text from a container
   function extractPostText(container) {
-    // Strategy A: collect text from span[dir="ltr"] — LinkedIn wraps post body in these
-    const ltrSpans = container.querySelectorAll('span[dir="ltr"]');
-    let bestLtr = '';
-    for (const span of ltrSpans) {
-      // Skip spans inside comment areas or editable inputs
-      if (span.closest('[contenteditable="true"]')) continue;
-      if (span.closest('[role="textbox"]')) continue;
-      if (span.closest('button')) continue;
-      const t = (span.innerText || span.textContent || '').trim();
-      if (t.length > bestLtr.length) bestLtr = t;
-    }
-    if (bestLtr.length > 40) return bestLtr;
+    if (!container) return '';
 
-    // Strategy B: find the largest text block in div/p/span elements
+    // Strategy A: LinkedIn wraps post body text in span[dir="ltr"]
+    // Collect ALL of them and concatenate (posts often split across multiple spans)
+    const ltrSpans = container.querySelectorAll('span[dir="ltr"]');
+    const ltrParts = [];
+    for (const span of ltrSpans) {
+      if (isInsideJunk(span)) continue;
+      const t = (span.innerText || span.textContent || '').trim();
+      if (t.length > 2) ltrParts.push(t);
+    }
+    // Concatenate all span parts — this captures multi-paragraph posts
+    const ltrText = ltrParts.join('\n').trim();
+    if (ltrText.length > 40 && !isJunkText(ltrText)) return ltrText;
+
+    // Strategy B: look for the description/body container by common LinkedIn patterns
+    // LinkedIn often uses a div whose data-test or class contains "update-components-text"
+    const descEls = container.querySelectorAll(
+      '[data-test-id*="text"], [class*="update-components-text"], [class*="feed-shared-text"], [class*="break-words"]'
+    );
+    for (const el of descEls) {
+      if (isInsideJunk(el)) continue;
+      const t = (el.innerText || '').trim();
+      if (t.length > 40 && !isJunkText(t)) return t;
+    }
+
+    // Strategy C: find the largest clean text block in div/p elements
     let bestBlock = '';
-    const blocks = container.querySelectorAll('div, p, span, article');
+    const blocks = container.querySelectorAll('div, p');
     for (const block of blocks) {
-      if (block.closest('[contenteditable="true"]')) continue;
-      if (block.closest('[role="textbox"]')) continue;
-      if (block.closest('button')) continue;
-      // Skip elements that are mostly interactive (many buttons/links relative to text)
-      const btnCount = block.querySelectorAll('button, a').length;
-      if (btnCount > 5 && block.children.length > 0) continue;
+      if (isInsideJunk(block)) continue;
+      // Skip elements that are mostly interactive
+      const btnCount = block.querySelectorAll('button, a, select, input').length;
+      if (btnCount > 3) continue;
       const t = (block.innerText || '').trim();
-      // Must be substantial text but not the entire page
-      if (t.length > 40 && t.length < 5000 && t.length > bestBlock.length) {
+      if (t.length > 40 && t.length < 5000 && t.length > bestBlock.length && !isJunkText(t)) {
         bestBlock = t;
       }
     }
@@ -188,14 +248,26 @@ if (!window.__anyaAiLoaded) {
     // Remove "...see more" / "…more"
     text = text.replace(/…\s*(see more|more)\s*$/i, '');
     text = text.replace(/\.\.\.\s*(see more|more)\s*$/i, '');
-    // Remove engagement lines
+    // Remove engagement stats lines ("123 likes · 45 comments")
+    text = text.replace(/^\s*[\d,]+\s*(likes?|comments?|reposts?|reactions?)\b.*$/gim, '');
+    // Remove engagement labels
     text = text.replace(/^\s*(liked by|loves?|celebrates?|insightful|funny|repost)\b.*$/gim, '');
     // Remove repost headers
     text = text.replace(/^\w+.*reposted\s*(this)?\s*/i, '');
+    // Remove "Follow" / "Connect" / "more" buttons that leak into text
+    text = text.replace(/\b(Follow|Connect|Pending)\b\s*/g, '');
+    // Remove time indicators ("3d · Edited ·")
+    text = text.replace(/^\s*\d+[hdwmo]\s*(·\s*Edited\s*)?(·\s*)?/gm, '');
     // Remove hashtag spam at the end
     text = text.replace(/(#\w+\s*){4,}$/, '');
+    // Remove trailing "see more" link text
+    text = text.replace(/\bsee more\s*$/i, '');
+    // Remove "Report this post" / "Send" type trailing UI
+    text = text.replace(/\b(Report this post|Send|Share|Save|Copy link)\b.*$/gim, '');
     // Clean whitespace
     text = text.replace(/\n{3,}/g, '\n\n').trim();
+    // Final junk check
+    if (isJunkText(text)) return '';
     return text;
   }
 
@@ -214,33 +286,33 @@ if (!window.__anyaAiLoaded) {
       const container = findPostContainer(activeEl);
       if (container) {
         const text = cleanPostText(extractPostText(container));
-        if (text) {
+        if (text && text.length > 20) {
           lastExtractedPost = text;
           return { text };
         }
       }
     }
 
-    // Strategy 2: find ALL contenteditable elements (comment inputs) and walk up
+    // Strategy 2: walk up from any open contenteditable (comment box)
     const editables = document.querySelectorAll('[contenteditable="true"], [role="textbox"]');
     for (let i = editables.length - 1; i >= 0; i--) {
       const container = findPostContainer(editables[i]);
       if (container) {
         const text = cleanPostText(extractPostText(container));
-        if (text) {
+        if (text && text.length > 20) {
           lastExtractedPost = text;
           return { text };
         }
       }
     }
 
-    // Strategy 3: first visible post in the viewport
+    // Strategy 3: first visible post with data-urn in viewport
     const allUrns = document.querySelectorAll('[data-urn]');
     for (const el of allUrns) {
       const rect = el.getBoundingClientRect();
       if (rect.top < window.innerHeight && rect.bottom > 0 && rect.height > 150) {
         const text = cleanPostText(extractPostText(el));
-        if (text) {
+        if (text && text.length > 20) {
           lastExtractedPost = text;
           return { text };
         }
@@ -253,7 +325,7 @@ if (!window.__anyaAiLoaded) {
       const rect = article.getBoundingClientRect();
       if (rect.top < window.innerHeight && rect.bottom > 0) {
         const text = cleanPostText(extractPostText(article));
-        if (text) {
+        if (text && text.length > 20) {
           lastExtractedPost = text;
           return { text };
         }

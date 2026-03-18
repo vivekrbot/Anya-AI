@@ -620,6 +620,10 @@ body {
   opacity: 0.85;
 }
 
+.fill-space {
+  grid-column: 1 / -1;
+}
+
 /* Utility */
 .hidden {
   display: none !important;
