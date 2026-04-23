@@ -74,7 +74,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
   currentTabId = activeInfo.tabId;
   selectedTextEl.value = '';
   commentPostContent = '';
-  postContentText.textContent = 'Text Placeholder here...';
+  postContentText.value = '';
   resetCommentResult();
   await fetchSelection();
   if (commentModeToggle.checked) {
@@ -94,18 +94,18 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'SELECTION_UPDATED' && message.text) {
     selectedTextEl.value = message.text;
     isInInput = message.isInInput || false;
-    // Also update comment mode content if toggle is on
+    // Also update comment mode content if toggle is on AND user hasn't typed their own
     if (commentModeToggle.checked) {
       const isNewContent = message.text !== commentPostContent;
       commentPostContent = message.text;
-      postContentText.textContent = message.text;
+      postContentText.value = message.text;
       if (isNewContent) resetCommentResult();
     }
   }
   if (message.type === 'POST_CONTENT_UPDATED' && message.text) {
     const isNewContent = message.text !== commentPostContent;
     commentPostContent = message.text;
-    postContentText.textContent = message.text;
+    postContentText.value = message.text;
     if (isNewContent) resetCommentResult();
   }
 });
@@ -157,6 +157,20 @@ $('#btnRefreshPost').addEventListener('click', () => {
   extractPostContent();
 });
 
+// Clear post content
+$('#btnClearPost').addEventListener('click', () => {
+  commentPostContent = '';
+  postContentText.value = '';
+  resetCommentResult();
+  hideError();
+  postContentText.focus();
+});
+
+// Keep commentPostContent in sync when user types/pastes directly
+postContentText.addEventListener('input', () => {
+  commentPostContent = postContentText.value;
+});
+
 // Generate Comment
 $('#btnGenerateComment').addEventListener('click', () => {
   generateComment();
@@ -203,7 +217,7 @@ $('#btnTryDifferent').addEventListener('click', () => {
   generateComment();
 });
 
-// Extract post content from page (LinkedIn or fallback to selection)
+// Extract content from page (selection on any site, LinkedIn post as enhancement)
 async function extractPostContent() {
   try {
     const tab = await getActiveTab();
@@ -218,41 +232,29 @@ async function extractPostContent() {
 
     if (response && response.text) {
       commentPostContent = response.text;
-      postContentText.textContent = response.text;
-    } else {
-      postContentText.textContent = 'No post content found. Select text on the page and click Refresh.';
+      postContentText.value = response.text;
     }
   } catch (e) {
-    // Fallback: try selected text
-    try {
-      const selResponse = await chrome.tabs.sendMessage(currentTabId, {
-        type: MESSAGE_TYPES.GET_SELECTION,
-      });
-      if (selResponse && selResponse.text) {
-        commentPostContent = selResponse.text;
-        postContentText.textContent = selResponse.text;
-      } else {
-        postContentText.textContent = 'No content found. Select text on the page and click Refresh.';
-      }
-    } catch (e2) {
-      postContentText.textContent = 'No content found. Select text on the page and click Refresh.';
-    }
+    // Content script not available — user can paste manually
   }
 }
 
 // Generate comment via AI
 async function generateComment() {
-  if (!commentPostContent) {
-    showError('No content to comment on. Extract or select post content first.');
+  // Read live from the textarea — users can type or paste directly
+  const text = postContentText.value.trim();
+  commentPostContent = text;
+  if (!text) {
+    showError('No content to work on. Paste or select content in the CONTENT box first.');
     return;
   }
   if (!selectedCommentAction) {
-    showError('Select a comment mode first.');
+    showError('Select a mode above first.');
     return;
   }
-  if (commentPostContent.length > MAX_TEXT_LENGTH) {
+  if (text.length > MAX_TEXT_LENGTH) {
     showError(
-      `Post content is too long (${commentPostContent.length} chars). Maximum is ${MAX_TEXT_LENGTH} characters.`
+      `Content is too long (${text.length} chars). Maximum is ${MAX_TEXT_LENGTH} characters.`
     );
     return;
   }

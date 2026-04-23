@@ -21,7 +21,7 @@
     <div class="comment-mode">
       <div class="comment-mode-info">
         <span class="comment-mode-title">Comment Mode</span>
-        <span class="comment-mode-subtitle">AI Reply Assistant To Analyze And Generate Content</span>
+        <span class="comment-mode-subtitle">Generate and refine comments for any content, anywhere</span>
       </div>
       <label class="toggle-switch">
         <input type="checkbox" id="commentModeToggle">
@@ -121,9 +121,18 @@
     <div id="commentView" class="hidden">
       <!-- Content -->
       <div class="section">
-        <div class="section-label">CONTENT</div>
-        <div id="postContentText" class="post-content-text">Text Placeholder here...</div>
-        <button id="btnRefreshPost" class="refresh-post-btn">Refresh</button>
+        <div class="section-header">
+          <div class="section-label">CONTENT</div>
+          <div class="section-actions">
+            <button id="btnRefreshPost" class="icon-btn" title="Refresh from selection or page">
+              <span class="material-symbols-outlined">refresh</span>
+            </button>
+            <button id="btnClearPost" class="icon-btn" title="Clear content">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+        <textarea id="postContentText" class="text-area" placeholder="Paste or select content here, or it will be auto-filled from your selection on the page..."></textarea>
       </div>
 
       <!-- Comment Mode Actions -->

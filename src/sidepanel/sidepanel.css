@@ -417,39 +417,6 @@ body {
 
 /* ========== Comment Mode View ========== */
 
-.post-content-text {
-  font-size: 13px;
-  color: var(--text-primary);
-  line-height: 1.5;
-  min-height: 40px;
-  max-height: 100px;
-  overflow-y: auto;
-  margin-bottom: 8px;
-  padding: 10px 12px;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.refresh-post-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--card-bg);
-  font-family: inherit;
-  font-size: 12px;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.refresh-post-btn:hover {
-  border-color: var(--teal);
-  color: var(--teal);
-}
 
 /* Comment Action Buttons (2-column grid, matches writing mode) */
 .comment-actions-list {
