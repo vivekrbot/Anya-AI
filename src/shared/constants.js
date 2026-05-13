@@ -7,6 +7,7 @@ export const ACTIONS = {
   EXPAND: 'expand',
   FRANK_TONE: 'frank_tone',
   HARVEY_TONE: 'harvey_tone',
+  AI_SUGGEST: 'ai_suggest',
 };
 
 export const COMMENT_ACTIONS = {

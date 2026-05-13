@@ -8,12 +8,17 @@ let currentResult = '';
 let isInInput = false;
 let selectedCommentAction = null;
 let commentPostContent = '';
+// Track what we last populated from a page selection. If the textarea later
+// shows a DIFFERENT non-empty value, the user has typed/edited and we should
+// not overwrite their work.
+let lastPageSelection = '';
 
 // DOM references
 const selectedTextEl = $('#selectedText');
 const commentModeToggle = $('#commentModeToggle');
 const resultPanel = $('#resultPanel');
 const resultText = $('#resultText');
+const resultNote = $('#resultNote');
 const loadingOverlay = $('#loadingOverlay');
 const errorMessage = $('#errorMessage');
 const writingView = $('#writingView');
@@ -58,12 +63,24 @@ async function fetchSelection() {
       type: MESSAGE_TYPES.GET_SELECTION,
     });
     if (response && response.text) {
-      selectedTextEl.value = response.text;
-      isInInput = response.isInInput || false;
+      applyPageSelection(response.text, response.isInInput);
     }
   } catch (e) {
     // Content script not available on this page
   }
+}
+
+// Populate the textarea from a page selection, but only if the user hasn't
+// typed something different into it.
+function applyPageSelection(text, inInput) {
+  const current = selectedTextEl.value;
+  if (current && current !== lastPageSelection) {
+    // User has edited the textarea — leave it alone
+    return;
+  }
+  selectedTextEl.value = text;
+  lastPageSelection = text;
+  isInInput = !!inInput;
 }
 
 // Initialize on load
@@ -73,6 +90,7 @@ document.addEventListener('DOMContentLoaded', fetchSelection);
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   currentTabId = activeInfo.tabId;
   selectedTextEl.value = '';
+  lastPageSelection = '';
   commentPostContent = '';
   postContentText.value = '';
   resetCommentResult();
@@ -91,10 +109,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 
 // Listen for selection updates pushed from content script in real-time
 chrome.runtime.onMessage.addListener((message) => {
+  console.log('[Anya AI] msg:', message.type, message.text ? '"' + message.text.slice(0, 40) + '"' : '');
   if (message.type === 'SELECTION_UPDATED' && message.text) {
-    selectedTextEl.value = message.text;
-    isInInput = message.isInInput || false;
-    // Also update comment mode content if toggle is on AND user hasn't typed their own
+    applyPageSelection(message.text, message.isInInput);
+    // Also update comment mode content if toggle is on
     if (commentModeToggle.checked) {
       const isNewContent = message.text !== commentPostContent;
       commentPostContent = message.text;
@@ -110,16 +128,38 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
+// Fallback paths: re-fetch the current selection when the side panel gains
+// focus or becomes visible. Covers cases where the realtime push from the
+// content script was missed (e.g. panel was hidden/unfocused at the moment).
+window.addEventListener('focus', () => {
+  fetchSelection();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    fetchSelection();
+  }
+});
+// Also periodically poll so a missed push doesn't leave the panel stale.
+setInterval(() => {
+  // Only poll if the textarea is empty or hasn't been edited by the user.
+  if (!selectedTextEl.value || selectedTextEl.value === lastPageSelection) {
+    fetchSelection();
+  }
+}, 1500);
+
 // Clear button
 $('#btnClear').addEventListener('click', () => {
   selectedTextEl.value = '';
+  lastPageSelection = '';
   isInInput = false;
   hideError();
   hideResult();
 });
 
-// Refresh button
+// Refresh button — re-fetch page selection, overriding any typed content
 $('#btnRefresh').addEventListener('click', () => {
+  selectedTextEl.value = '';
+  lastPageSelection = '';
   fetchSelection();
 });
 
@@ -300,8 +340,8 @@ function resetCommentResult() {
   generateSection.classList.remove('hidden');
 }
 
-// Action buttons
-$$('.action-btn').forEach((btn) => {
+// Action buttons (writing-mode actions + AI Suggest)
+$$('.action-btn, .ai-suggest-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     const action = btn.dataset.action;
     processText(action);
@@ -404,8 +444,15 @@ async function processText(action) {
     if (response && response.error) {
       showError(response.error);
     } else if (response && response.result) {
-      currentResult = response.result;
-      showResult(response.result);
+      // AI Suggest returns "[NOTE]\n...\n[REWRITE]\n..." — parse if present
+      const noteMatch = response.result.match(/^\s*\[NOTE\]\s*([\s\S]*?)\s*\[REWRITE\]\s*([\s\S]*)$/);
+      if (noteMatch) {
+        currentResult = noteMatch[2].trim();
+        showResult(currentResult, noteMatch[1].trim());
+      } else {
+        currentResult = response.result;
+        showResult(response.result);
+      }
     } else {
       showError('No response from AI. Please try again.');
     }
@@ -417,14 +464,23 @@ async function processText(action) {
   }
 }
 
-function showResult(text) {
+function showResult(text, note) {
   resultText.textContent = text;
+  if (note) {
+    resultNote.textContent = note;
+    resultNote.classList.remove('hidden');
+  } else {
+    resultNote.textContent = '';
+    resultNote.classList.add('hidden');
+  }
   resultPanel.classList.remove('hidden');
   resultPanel.scrollIntoView({ behavior: 'smooth' });
 }
 
 function hideResult() {
   resultPanel.classList.add('hidden');
+  resultNote.textContent = '';
+  resultNote.classList.add('hidden');
   currentResult = '';
 }
 
@@ -446,7 +502,7 @@ function hideError() {
 }
 
 function disableButtons(disabled) {
-  $$('.action-btn').forEach((btn) => {
+  $$('.action-btn, .ai-suggest-btn').forEach((btn) => {
     btn.disabled = disabled;
   });
 }

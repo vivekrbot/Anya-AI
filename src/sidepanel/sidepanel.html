@@ -44,7 +44,15 @@
             </button>
           </div>
         </div>
-        <textarea id="selectedText" class="text-area" placeholder="Text Content Here...." readonly></textarea>
+        <textarea id="selectedText" class="text-area" placeholder="Select text on the page, or paste/type here..." autocomplete="off"></textarea>
+      </div>
+
+      <!-- AI Suggest (primary one-click magic button) -->
+      <div class="section">
+        <button class="ai-suggest-btn" data-action="ai_suggest">
+          <span class="material-symbols-outlined">auto_awesome</span>
+          AI Suggest
+        </button>
       </div>
 
       <!-- Actions -->
@@ -99,6 +107,7 @@
       <!-- Result Panel (hidden by default) -->
       <div id="resultPanel" class="result-panel hidden">
         <div class="section-label">RESULT</div>
+        <div id="resultNote" class="ai-suggest-note hidden"></div>
         <div id="resultText" class="result-text"></div>
         <div class="result-actions">
           <button id="btnReplace" class="result-btn">
