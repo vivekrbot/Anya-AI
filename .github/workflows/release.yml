@@ -41,5 +41,5 @@ jobs:
         with:
           name: Anya AI v${{ steps.ver.outputs.version }}
           tag_name: ${{ github.ref_name }}
-          generate_release_notes: true
+          body_path: RELEASE_NOTES.md
           files: anya-ai-v${{ steps.ver.outputs.version }}.zip
