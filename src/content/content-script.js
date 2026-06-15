@@ -390,6 +390,11 @@ if (!window.__anyaAiLoaded) {
   // Do NOT call sendResponse for unrecognized messages so other
   // listeners (service worker) can handle them.
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // Only accept messages from this extension (side panel / service worker).
+    if (sender.id !== chrome.runtime.id) {
+      return false;
+    }
+
     if (message.type === 'EXTRACT_POST_CONTENT') {
       const result = extractLinkedInPostContent();
       if (!result.text && cachedSelection) {

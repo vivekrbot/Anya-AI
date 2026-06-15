@@ -55,7 +55,14 @@ async function callGroqAPI(apiKey, model, messages, temperature, maxTokens) {
   }
 
   const data = await response.json();
-  return data.choices[0].message.content.trim();
+  const content =
+    data && data.choices && data.choices[0] && data.choices[0].message
+      ? data.choices[0].message.content
+      : null;
+  if (typeof content !== 'string') {
+    throw new Error('Unexpected response from Groq. Please try again.');
+  }
+  return content.trim();
 }
 
 async function processWithRetry(apiKey, model, messages, temperature, maxTokens, retries) {
@@ -76,6 +83,12 @@ async function processWithRetry(apiKey, model, messages, temperature, maxTokens,
 
 // Handle messages — only respond to messages meant for the service worker
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  // Only accept messages originating from this extension (own side panel,
+  // options page, or content scripts). Rejects anything else.
+  if (sender.id !== chrome.runtime.id) {
+    return false;
+  }
+
   // Ignore messages not meant for the service worker
   if (
     message.type === 'SELECTION_UPDATED' ||

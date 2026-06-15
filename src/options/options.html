@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anya AI — Settings</title>
+  <link rel="stylesheet" href="../assets/fonts/material-symbols.css">
   <link rel="stylesheet" href="options.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
 </head>
 <body>
   <div class="container">
@@ -36,6 +36,30 @@
         <button id="btnTestKey" class="btn btn-secondary">Test Key</button>
       </div>
       <div id="keyStatus" class="status hidden"></div>
+
+      <!-- How to get a key -->
+      <div class="instructions">
+        <div class="instructions-title">
+          <span class="material-symbols-outlined">key</span>
+          How to get your free Groq API key
+        </div>
+        <ol class="instructions-list">
+          <li>Open <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">console.groq.com/keys</a> (opens in a new tab).</li>
+          <li>Sign in with Google or GitHub — it's free and needs no credit card.</li>
+          <li>Click <strong>Create API Key</strong> and give it a name (e.g. "Anya AI").</li>
+          <li>Copy the key — it starts with <code>gsk_</code>.</li>
+          <li>Paste it into the field above, then click <strong>Save Key</strong> and <strong>Test Key</strong>.</li>
+        </ol>
+      </div>
+
+      <!-- Privacy disclosure -->
+      <p class="privacy-note">
+        <span class="material-symbols-outlined">lock</span>
+        Your key is stored only on this device and is sent only to Groq to generate
+        results. Text you process is sent to Groq when you trigger an action. No
+        analytics or tracking. See our
+        <a href="https://groq.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Groq's privacy policy</a>.
+      </p>
     </section>
 
     <!-- Model & Defaults -->

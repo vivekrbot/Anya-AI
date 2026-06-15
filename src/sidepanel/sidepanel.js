@@ -109,7 +109,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 
 // Listen for selection updates pushed from content script in real-time
 chrome.runtime.onMessage.addListener((message) => {
-  console.log('[Anya AI] msg:', message.type, message.text ? '"' + message.text.slice(0, 40) + '"' : '');
   if (message.type === 'SELECTION_UPDATED' && message.text) {
     applyPageSelection(message.text, message.isInInput);
     // Also update comment mode content if toggle is on

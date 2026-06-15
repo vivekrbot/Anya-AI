@@ -173,3 +173,67 @@ input[type="range"] {
 .hidden {
   display: none !important;
 }
+
+.instructions {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--teal-light);
+  border-radius: var(--radius-sm);
+  border: 1px solid #CDEFEA;
+}
+
+.instructions-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #00897B;
+  margin-bottom: 10px;
+}
+
+.instructions-title .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.instructions-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.instructions-list a {
+  color: #00897B;
+  font-weight: 600;
+}
+
+.instructions-list code {
+  background: #FFFFFF;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 11.5px;
+  color: #00897B;
+}
+
+.privacy-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.privacy-note .material-symbols-outlined {
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.privacy-note a {
+  color: var(--teal);
+}

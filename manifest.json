@@ -10,8 +10,11 @@
     "sidePanel",
     "tabs"
   ],
+  "host_permissions": [
+    "https://api.groq.com/*"
+  ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "default-src 'self'; script-src 'self'; object-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'self' https://api.groq.com"
   },
   "background": {
     "service_worker": "background/service-worker.js"

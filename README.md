@@ -2,7 +2,40 @@
 
 AI Writing Assistant powered by Groq. Rewrite, fix grammar, change tone, shorten, expand, and generate replies — all from your browser.
 
-## Setup (Developer Mode)
+## Install on any device (from GitHub Releases)
+
+No Chrome Web Store needed. Every version tag produces a prebuilt zip on the
+[Releases page](https://github.com/vivekrbot/Anya-AI/releases), so all your devices
+run the exact same build.
+
+1. Go to **[Releases](https://github.com/vivekrbot/Anya-AI/releases)** and download
+   the latest `anya-ai-vX.Y.Z.zip`.
+2. Unzip it to a folder you'll keep (don't delete it — Chrome loads from this folder).
+3. Open `chrome://extensions` → enable **Developer mode** (top-right).
+4. Click **Load unpacked** → select the unzipped folder.
+5. Open Settings (gear icon) and follow the in-app steps to add your free
+   [Groq API key](https://console.groq.com/keys). The key is stored only on that
+   device — enter it once per device.
+
+**To update a device:** download the newer release zip, replace the folder contents,
+then click the refresh icon on the extension card in `chrome://extensions`.
+> Unpacked extensions do not auto-update — that's the trade-off for not using the Web Store.
+
+## Cutting a release (maintainer)
+
+The [release workflow](.github/workflows/release.yml) builds and publishes
+automatically when you push a version tag:
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+GitHub Actions then builds, sets the manifest version to match the tag, and attaches
+`anya-ai-v1.0.1.zip` to a new Release — guaranteeing every device that downloads it
+runs an identical version.
+
+## Setup (Developer Mode / build from source)
 
 1. **Install dependencies**
    ```bash
@@ -59,7 +92,7 @@ src/
 └── shared/                        # Constants, prompts, storage, messaging
 ```
 
-**Security**: The API key is stored in `chrome.storage.local` and read only by the service worker. It is never exposed to content scripts or the side panel.
+**Security**: The API key is stored in `chrome.storage.local` and read only by the service worker. It is sent only to Groq (`https://api.groq.com`) as an auth header. Fonts are bundled locally — no remote resources are loaded. The extension makes no analytics or telemetry calls. See [PRIVACY.md](PRIVACY.md).
 
 ## Packaging
 
