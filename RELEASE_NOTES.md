@@ -1,46 +1,49 @@
-# Anya AI v1.0.0 🎉
+# Anya AI v1.0.1 ✨
 
-The first official release of **Anya AI** — an AI writing assistant that lives in your
-Chrome side panel. Rewrite, fix grammar, change tone, and generate thoughtful replies
-on any webpage, powered by [Groq](https://groq.com).
+This release adds **Prompt Tools** — turn plain English into high-quality prompts,
+right inside the side panel.
 
-Bring your own free Groq API key — no account with us, no servers, no tracking.
+## 🆕 What's new
 
-## ✨ Features
+**Prompt Tools (Writing mode)** — two categories:
 
-**Writing mode** — select text on any page and transform it instantly:
-- **AI Suggest** — one click applies the single highest-impact edit and tells you what changed
-- Improve Writing · Fix Grammar · Shorten · Expand
-- Professional & Friendly tones
-- **Quick Actors** — Frank (blunt & direct) and Harvey (authoritative & persuasive)
+- **Generic Style** — converts your plain-English request into a structured,
+  copy-paste prompt: Role, Task, Context, Audience, Constraints, Inputs Provided,
+  and Output Format — plus a Missing Details Checklist. Unknowns are flagged as
+  `[MISSING: ...]` so nothing is invented.
 
-**Comment mode** — generate natural, human-sounding replies for social posts:
-- 12 styles: Agree & Add, Challenge, Ask a Question, Share Experience, Add Insight,
-  Supportive, Professional, Congratulate, Hot Take, Storytelling, Offer Help, One-Liner
-- Tone & length controls
-- Smart LinkedIn post extraction so the right content is picked up automatically
+- **Image Prompting** — converts a plain-English description into a ready-to-paste
+  text-to-image prompt (Midjourney, DALL·E, Stable Diffusion, etc.). It follows a
+  clear 4-step method — understand the request and its limits, outline the image,
+  flag what's missing, then finalize — and returns:
+  - an **Outline** (Subject, Style, Composition, Lighting, Color & Mood, Camera/Lens,
+    Details, Aspect Ratio, Negative Prompt),
+  - a **Missing Information** list, and
+  - a **Final Prompt** you can copy-paste, with any gaps marked inline in `[brackets]`.
 
-**Use the result** — Replace, Insert, or Copy directly into the page.
+## ✅ Still included from v1.0.0
 
-## 🔒 Privacy & Security
-
-- Your API key is stored **only on your device** and sent **only to Groq**
-- **No analytics, no telemetry, no tracking**, and no servers of our own
-- All fonts and assets are bundled locally — the extension loads **zero remote resources**
-- Strict Content Security Policy and validated internal messaging
-- Full details in [PRIVACY.md](https://github.com/vivekrbot/Anya-AI/blob/main/PRIVACY.md)
+Writing mode (AI Suggest, Improve, Fix Grammar, Shorten, Expand, Professional/Friendly
+tones, Frank & Harvey actors), Comment mode (12 reply styles with tone & length
+controls), local-only API key, bundled fonts, no tracking. See
+[PRIVACY.md](https://github.com/vivekrbot/Anya-AI/blob/main/PRIVACY.md).
 
 ## 📦 Install
 
-1. Download **`anya-ai-v1.0.0.zip`** below
-2. Unzip it to a folder you'll keep
-3. Open `chrome://extensions` → enable **Developer mode**
-4. Click **Load unpacked** → select the unzipped folder
+1. Download **`anya-ai-v1.0.1.zip`** below.
+2. Unzip it to a folder you'll keep. On Windows, use a clean extraction so no files
+   are dropped:
+   ```powershell
+   Unblock-File "$HOME\Downloads\anya-ai-v1.0.1.zip"
+   Expand-Archive "$HOME\Downloads\anya-ai-v1.0.1.zip" -DestinationPath "$HOME\Anya-AI" -Force
+   ```
+3. Open `chrome://extensions` → enable **Developer mode**.
+4. Click **Load unpacked** → select the folder that contains `manifest.json`.
 5. Open Settings (gear icon) and add your free
-   [Groq API key](https://console.groq.com/keys) — the in-app guide walks you through it
+   [Groq API key](https://console.groq.com/keys) — the in-app guide walks you through it.
 
-> Unpacked extensions don't auto-update. To update later, download the newer release
-> zip, replace the folder contents, and hit refresh on the extension card.
+> Unpacked extensions don't auto-update. To update, download the newer zip, replace
+> the folder contents, and hit refresh on the extension card in `chrome://extensions`.
 
 ## 🙏 Credits
 

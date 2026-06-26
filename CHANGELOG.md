@@ -3,6 +3,18 @@
 All notable changes to Anya AI are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] — 2026-06-26
+
+### Added
+- **Prompt Tools** in Writing mode, with two categories:
+  - **Generic Style** — converts plain English into a structured, copy-paste prompt
+    (Role / Task / Context / Audience / Constraints / Inputs Provided / Output Format)
+    plus a Missing Details Checklist, flagging unknowns as `[MISSING: ...]`.
+  - **Image Prompting** — converts a plain-English description into a copy-paste
+    text-to-image prompt. Follows a 4-step method (understand → outline → flag gaps
+    → finalize), returns an Outline, a Missing Information list, and a ready-to-paste
+    Final Prompt with any gaps marked inline in `[brackets]`.
+
 ## [1.0.0] — 2026-06-15
 
 First official release.
