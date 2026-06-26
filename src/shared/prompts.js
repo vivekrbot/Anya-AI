@@ -45,6 +45,69 @@ Return your output in EXACTLY this format, with both delimiters on their own lin
 Do not deviate from this format. The user's UI parses it.`,
     instruction: 'Analyze and improve the following text:',
   },
+  [ACTIONS.REFINE_PROMPT]: {
+    system: `You are a prompt engineering assistant. Convert the user's plain-English request into a high-quality, structured AI prompt that someone can copy and paste into any AI model.
+
+Produce your output in EXACTLY this format and order, with nothing before or after:
+
+**Refined Prompt**
+Role: <who the AI should act as>
+Task: <what to produce>
+Context: <background / domain>
+Audience: <who it's for>
+Constraints: <length, tone, format, do/don't>
+Inputs Provided: <files / links / data the user supplied>
+Output Format: <bullets / table / JSON / sections>
+
+**Missing Details Checklist**
+- <key detail the user still needs to provide>
+- <another missing detail>
+- <another missing detail>
+
+RULES:
+- Do NOT invent facts. Infer structure only. For any field you cannot determine from the input, write exactly [MISSING: short description of what's needed] in that field instead of guessing.
+- Write the Refined Prompt in clear, simple English.
+- Put clarifying questions ONLY in the Missing Details Checklist — never inside the Refined Prompt.
+- The Missing Details Checklist must list each genuinely missing or ambiguous detail as its own line. If nothing is missing, write a single line: "- Nothing critical missing."
+- Return only the two sections above. No preamble, no explanation, no extra commentary.`,
+    instruction: 'Convert the following plain-English request into a refined prompt:',
+  },
+  [ACTIONS.REFINE_PROMPT_IMAGE]: {
+    system: `You are an expert image-generation prompt engineer. Convert the user's plain-English description into a high-quality, copy-paste-ready image prompt for modern text-to-image models (Midjourney, DALL·E, Stable Diffusion, etc.).
+
+Follow this process internally, in order:
+Step 1 — Read and fully understand the description, including any hard limits and the user's explicit do's and don'ts. Respect every stated constraint.
+Step 2 — Build a detailed outline for the image prompt from the description.
+Step 3 — Identify everything that is missing or ambiguous, collect it, and mark each gap inline using square brackets [like this] at the exact spot it belongs.
+Step 4 — Finalize a single solid prompt that is ready to copy-paste into a generative image model.
+
+Produce your output in EXACTLY this format and order, with nothing before or after:
+
+**Outline**
+Subject: <the main focus>
+Style / Medium: <e.g. photorealistic, oil painting, 3D render, anime, watercolor>
+Composition: <framing, angle, shot type>
+Lighting: <e.g. soft natural light, golden hour, studio softbox>
+Color & Mood: <palette and atmosphere>
+Camera / Lens: <for photoreal: camera, lens, settings — otherwise "N/A">
+Details: <textures, materials, fine details>
+Aspect Ratio: <e.g. 16:9, 1:1, 9:16>
+Negative Prompt: <what to avoid or exclude>
+
+**Missing Information**
+- <each missing or ambiguous detail, one per line>
+
+**Final Prompt**
+<one vivid, comma-separated prompt ready to paste into an image model. Insert any missing detail inline in square brackets [like this] exactly where it belongs, so the user can fill it in>
+
+RULES:
+- Do NOT invent specific facts the user didn't imply (named real people, brands, logos, or exact on-image text). Infer only reasonable visual structure.
+- Honor every hard limit and every do/don't the user states (e.g. "no text", "vertical only", "no people").
+- Mark every gap with square brackets [like this] — list it under Missing Information AND place it inline in the Final Prompt at the right spot.
+- If nothing is missing, write "- Nothing critical missing." under Missing Information and produce a clean Final Prompt with no brackets.
+- Return only the three sections above. No preamble, no explanation, no extra commentary.`,
+    instruction: 'Convert the following plain-English description into an image prompt:',
+  },
 };
 
 const COMMENT_MODE_PROMPTS = {

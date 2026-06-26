@@ -8,6 +8,8 @@ export const ACTIONS = {
   FRANK_TONE: 'frank_tone',
   HARVEY_TONE: 'harvey_tone',
   AI_SUGGEST: 'ai_suggest',
+  REFINE_PROMPT: 'refine_prompt',
+  REFINE_PROMPT_IMAGE: 'refine_prompt_image',
 };
 
 export const COMMENT_ACTIONS = {
