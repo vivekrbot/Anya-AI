@@ -1,4 +1,4 @@
-# Anya AI — Chrome Extension
+# Anya AI - Chrome Extension
 
 AI Writing Assistant powered by Groq. Rewrite, fix grammar, change tone, shorten, expand, and generate replies — all from your browser.
 
