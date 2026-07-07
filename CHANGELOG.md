@@ -3,6 +3,20 @@
 All notable changes to Anya AI are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] — 2026-07-07
+
+### Changed
+- **Prompt Tools** now return a single, ready-to-paste prompt with no editing
+  required before use:
+  - **Generic Style** no longer shows a Missing Details Checklist or
+    `[MISSING: ...]` placeholders. Any detail the request doesn't specify
+    (style, tone, audience, format, etc.) is now filled in automatically with
+    a sensible default inferred from the request.
+  - **Image Prompting** no longer returns an Outline or Missing Information
+    list, and no longer marks gaps inline with `[brackets]`. It now returns
+    only the finished prompt, with unspecified details (art style, lighting,
+    mood, aspect ratio, etc.) auto-filled the same way.
+
 ## [1.0.1] — 2026-06-26
 
 ### Added

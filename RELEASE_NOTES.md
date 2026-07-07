@@ -1,41 +1,42 @@
-# Anya AI v1.0.1 ✨
+# Anya AI v1.0.2 ✨
 
-This release adds **Prompt Tools** — turn plain English into high-quality prompts,
-right inside the side panel.
+This release refines **Prompt Tools** so both prompt types return a single,
+ready-to-paste prompt — no editing required before use.
 
-## 🆕 What's new
+## 🆕 What's changed
 
-**Prompt Tools (Writing mode)** — two categories:
+**Prompt Tools (Writing mode):**
 
-- **Generic Style** — converts your plain-English request into a structured,
-  copy-paste prompt: Role, Task, Context, Audience, Constraints, Inputs Provided,
-  and Output Format — plus a Missing Details Checklist. Unknowns are flagged as
-  `[MISSING: ...]` so nothing is invented.
+- **Generic Style** no longer returns a Missing Details Checklist or
+  `[MISSING: ...]` placeholders. Any detail your request doesn't spell out
+  (style, tone, audience, format, etc.) is now filled in automatically with
+  a sensible default inferred from what you typed — so the result pastes
+  straight into any AI model as-is.
 
-- **Image Prompting** — converts a plain-English description into a ready-to-paste
-  text-to-image prompt (Midjourney, DALL·E, Stable Diffusion, etc.). It follows a
-  clear 4-step method — understand the request and its limits, outline the image,
-  flag what's missing, then finalize — and returns:
-  - an **Outline** (Subject, Style, Composition, Lighting, Color & Mood, Camera/Lens,
-    Details, Aspect Ratio, Negative Prompt),
-  - a **Missing Information** list, and
-  - a **Final Prompt** you can copy-paste, with any gaps marked inline in `[brackets]`.
+- **Image Prompting** no longer returns an Outline or a Missing Information
+  list, and no longer marks gaps inline with `[brackets]`. It now returns
+  only the finished image prompt, with unspecified details (art style,
+  lighting, mood, aspect ratio, etc.) auto-filled the same way.
 
-## ✅ Still included from v1.0.0
+You can still edit the result afterward in the side panel if you want to
+add something — the tool just won't force you to fill in blanks first.
 
-Writing mode (AI Suggest, Improve, Fix Grammar, Shorten, Expand, Professional/Friendly
-tones, Frank & Harvey actors), Comment mode (12 reply styles with tone & length
-controls), local-only API key, bundled fonts, no tracking. See
+## ✅ Still included from v1.0.1
+
+Writing mode (AI Suggest, Improve, Fix Grammar, Shorten, Expand,
+Professional/Friendly tones, Frank & Harvey actors), Comment mode (12 reply
+styles with tone & length controls), local-only API key, bundled fonts, no
+tracking. See
 [PRIVACY.md](https://github.com/vivekrbot/Anya-AI/blob/main/PRIVACY.md).
 
 ## 📦 Install
 
-1. Download **`anya-ai-v1.0.1.zip`** below.
+1. Download **`anya-ai-v1.0.2.zip`** below.
 2. Unzip it to a folder you'll keep. On Windows, use a clean extraction so no files
    are dropped:
    ```powershell
-   Unblock-File "$HOME\Downloads\anya-ai-v1.0.1.zip"
-   Expand-Archive "$HOME\Downloads\anya-ai-v1.0.1.zip" -DestinationPath "$HOME\Anya-AI" -Force
+   Unblock-File "$HOME\Downloads\anya-ai-v1.0.2.zip"
+   Expand-Archive "$HOME\Downloads\anya-ai-v1.0.2.zip" -DestinationPath "$HOME\Anya-AI" -Force
    ```
 3. Open `chrome://extensions` → enable **Developer mode**.
 4. Click **Load unpacked** → select the folder that contains `manifest.json`.
