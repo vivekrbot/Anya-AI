@@ -1,4 +1,9 @@
-import { MESSAGE_TYPES, GROQ_API_URL, MAX_TEXT_LENGTH } from '../shared/constants.js';
+import {
+  MESSAGE_TYPES,
+  GROQ_API_URL,
+  MAX_TEXT_LENGTH,
+  VALIDATION_MODEL,
+} from '../shared/constants.js';
 import { getApiKey, getSettings } from '../shared/storage.js';
 import { buildPrompt, buildCommentPrompt } from '../shared/prompts.js';
 
@@ -28,6 +33,27 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
 });
 
+// The gpt-oss models reason before answering. These are short rewrite tasks, so
+// keep reasoning minimal and out of the response — otherwise it eats the
+// max_tokens budget and can leak into the text we paste back.
+function buildRequestBody(model, messages, temperature, maxTokens) {
+  const body = {
+    model,
+    messages,
+    temperature,
+    max_tokens: maxTokens,
+  };
+
+  if (model.indexOf('openai/gpt-oss') === 0) {
+    body.reasoning_effort = 'low';
+    body.include_reasoning = false;
+  } else if (model.indexOf('qwen/') === 0) {
+    body.reasoning_format = 'hidden';
+  }
+
+  return body;
+}
+
 async function callGroqAPI(apiKey, model, messages, temperature, maxTokens) {
   const response = await fetch(GROQ_API_URL, {
     method: 'POST',
@@ -35,12 +61,7 @@ async function callGroqAPI(apiKey, model, messages, temperature, maxTokens) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature,
-      max_tokens: maxTokens,
-    }),
+    body: JSON.stringify(buildRequestBody(model, messages, temperature, maxTokens)),
   });
 
   if (!response.ok) {
@@ -49,6 +70,10 @@ async function callGroqAPI(apiKey, model, messages, temperature, maxTokens) {
       throw new Error('Invalid API key. Please check your Groq API key in Settings.');
     if (status === 429)
       throw new Error('Rate limited. Please wait a moment and try again.');
+    if (status === 404)
+      throw new Error(
+        'Model "' + model + '" is no longer available on Groq. Open Settings and pick a current model.'
+      );
     if (status === 503)
       throw new Error('Groq service is temporarily unavailable. Please try again.');
     throw new Error('API error (' + status + '). Please try again.');
@@ -160,10 +185,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       try {
         await callGroqAPI(
           message.key,
-          'llama-3.1-8b-instant',
+          VALIDATION_MODEL,
           [{ role: 'user', content: 'Hi' }],
           0.1,
-          5
+          // Enough headroom that reasoning tokens can't truncate the reply to
+          // nothing and make a valid key look broken.
+          64
         );
         sendResponse({ valid: true });
       } catch (err) {

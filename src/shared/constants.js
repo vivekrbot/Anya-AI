@@ -36,16 +36,29 @@ export const MESSAGE_TYPES = {
   EXTRACT_POST_CONTENT: 'EXTRACT_POST_CONTENT',
 };
 
+// GroqCloud production models. Verified against
+// https://console.groq.com/docs/models (Aug 2026).
 export const MODELS = [
-  { id: 'llama-3.1-8b-instant', name: 'LLaMA 3.1 8B (Fast)' },
-  { id: 'llama-3.3-70b-versatile', name: 'LLaMA 3.3 70B (Quality)' },
-  { id: 'llama-3.1-70b-versatile', name: 'LLaMA 3.1 70B' },
-  { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B' },
-  { id: 'gemma2-9b-it', name: 'Gemma 2 9B' },
+  { id: 'openai/gpt-oss-20b', name: 'GPT-OSS 20B (Fast)' },
+  { id: 'openai/gpt-oss-120b', name: 'GPT-OSS 120B (Quality)' },
+  { id: 'qwen/qwen3.6-27b', name: 'Qwen 3.6 27B (Balanced)' },
 ];
 
+// Models Groq has decommissioned. Requests using these fail with a 404, so any
+// saved setting pointing at one is rewritten to its replacement on read.
+// See https://console.groq.com/docs/deprecations.
+export const LEGACY_MODEL_MAP = {
+  'llama-3.1-8b-instant': 'openai/gpt-oss-20b',
+  'llama-3.3-70b-versatile': 'openai/gpt-oss-120b',
+  'llama-3.1-70b-versatile': 'openai/gpt-oss-120b',
+  'mixtral-8x7b-32768': 'openai/gpt-oss-120b',
+  'gemma2-9b-it': 'openai/gpt-oss-20b',
+  'qwen/qwen3-32b': 'openai/gpt-oss-120b',
+  'meta-llama/llama-4-scout-17b-16e-instruct': 'openai/gpt-oss-120b',
+};
+
 export const DEFAULT_SETTINGS = {
-  model: 'llama-3.1-8b-instant',
+  model: 'openai/gpt-oss-20b',
   temperature: 0.7,
   maxTokens: 1024,
   defaultTone: 'professional',
@@ -53,5 +66,8 @@ export const DEFAULT_SETTINGS = {
 };
 
 export const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+// Cheapest/fastest production model — used only for the "Test key" round trip.
+export const VALIDATION_MODEL = 'openai/gpt-oss-20b';
 
 export const MAX_TEXT_LENGTH = 8000;

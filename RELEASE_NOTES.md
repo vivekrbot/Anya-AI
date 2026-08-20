@@ -1,50 +1,69 @@
-# Anya AI v1.0.2 ✨
+# Anya AI v1.0.3 🔧
 
-This release refines **Prompt Tools** so both prompt types return a single,
-ready-to-paste prompt — no editing required before use.
+**Required update.** Groq retired the models Anya AI shipped with, so every
+action in v1.0.2 and earlier now fails with an `API error (404)`. This release
+moves to Groq's current models and repairs existing installs automatically.
+
+## 🐛 What was broken
+
+Groq [decommissioned](https://console.groq.com/docs/deprecations) every model in
+the extension's list. The default one, `llama-3.1-8b-instant`, shut down on
+**16 August 2026** — which is when Improve, Fix Grammar, tone changes, comments,
+and Prompt Tools all started returning a 404.
+
+`llama-3.3-70b-versatile` shut down the same day; `llama-3.1-70b-versatile`,
+`mixtral-8x7b-32768`, and `gemma2-9b-it` had gone earlier.
 
 ## 🆕 What's changed
 
-**Prompt Tools (Writing mode):**
+**New models.** Anya AI now runs on Groq's current production lineup:
 
-- **Generic Style** no longer returns a Missing Details Checklist or
-  `[MISSING: ...]` placeholders. Any detail your request doesn't spell out
-  (style, tone, audience, format, etc.) is now filled in automatically with
-  a sensible default inferred from what you typed — so the result pastes
-  straight into any AI model as-is.
+| Model | Use it for |
+|---|---|
+| **GPT-OSS 20B** *(new default)* | Fastest responses — the right pick for rewrites, tone changes, and comments |
+| **GPT-OSS 120B** | Higher quality when you want a more considered result |
+| **Qwen 3.6 27B** | A balanced middle ground |
 
-- **Image Prompting** no longer returns an Outline or a Missing Information
-  list, and no longer marks gaps inline with `[brackets]`. It now returns
-  only the finished image prompt, with unspecified details (art style,
-  lighting, mood, aspect ratio, etc.) auto-filled the same way.
+**Your settings migrate themselves.** If you'd saved a model in Settings, that
+choice pointed at a model that no longer exists. Anya AI now detects a retired
+model and switches you to its modern equivalent on the next run — you don't have
+to open Settings or reconfigure anything.
 
-You can still edit the result afterward in the side panel if you want to
-add something — the tool just won't force you to fill in blanks first.
+**"Test API key" works again.** Key testing was checking against a
+decommissioned model, so it reported perfectly valid keys as invalid.
 
-## ✅ Still included from v1.0.1
+**Clearer errors.** If a model is ever retired again, you'll see which model is
+unavailable and what to do, instead of a bare `API error (404)`.
+
+**Faster, cleaner output.** The new models reason before answering, so internal
+reasoning is now suppressed — it can't eat into your response length or leak
+into the text pasted back into the page.
+
+## ✅ Still included
 
 Writing mode (AI Suggest, Improve, Fix Grammar, Shorten, Expand,
 Professional/Friendly tones, Frank & Harvey actors), Comment mode (12 reply
-styles with tone & length controls), local-only API key, bundled fonts, no
-tracking. See
+styles with tone & length controls), Prompt Tools (Generic Style & Image
+Prompting), local-only API key, bundled fonts, no tracking. See
 [PRIVACY.md](https://github.com/vivekrbot/Anya-AI/blob/main/PRIVACY.md).
 
-## 📦 Install
+## 📦 Install / Update
 
-1. Download **`anya-ai-v1.0.2.zip`** below.
+1. Download **`anya-ai-v1.0.3.zip`** below.
 2. Unzip it to a folder you'll keep. On Windows, use a clean extraction so no files
    are dropped:
    ```powershell
-   Unblock-File "$HOME\Downloads\anya-ai-v1.0.2.zip"
-   Expand-Archive "$HOME\Downloads\anya-ai-v1.0.2.zip" -DestinationPath "$HOME\Anya-AI" -Force
+   Unblock-File "$HOME\Downloads\anya-ai-v1.0.3.zip"
+   Expand-Archive "$HOME\Downloads\anya-ai-v1.0.3.zip" -DestinationPath "$HOME\Anya-AI" -Force
    ```
 3. Open `chrome://extensions` → enable **Developer mode**.
 4. Click **Load unpacked** → select the folder that contains `manifest.json`.
 5. Open Settings (gear icon) and add your free
    [Groq API key](https://console.groq.com/keys) — the in-app guide walks you through it.
 
-> Unpacked extensions don't auto-update. To update, download the newer zip, replace
-> the folder contents, and hit refresh on the extension card in `chrome://extensions`.
+> **Updating from v1.0.2?** Replace your existing folder's contents with the new
+> zip, then hit refresh on the Anya AI card in `chrome://extensions`. Your API key
+> and settings carry over, and the retired model is swapped out for you.
 
 ## 🙏 Credits
 

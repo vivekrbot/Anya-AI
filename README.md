@@ -102,7 +102,7 @@ npm run package    # Creates anya-ai-v{version}.zip
 
 ## Settings
 
-- **Model**: Default `llama-3.1-8b-instant` (fast). Change to `llama-3.3-70b-versatile` for higher quality.
+- **Model**: Default `openai/gpt-oss-20b` (fastest). Choose `openai/gpt-oss-120b` for higher quality, or `qwen/qwen3.6-27b` for a middle ground. Groq retires models periodically — the current list is at [console.groq.com/docs/models](https://console.groq.com/docs/models).
 - **Temperature**: 0.0 (deterministic) to 2.0 (creative). Default: 0.7
 - **Response Length**: Short, Medium, Long
 - **Default Tone**: Professional, Friendly, Direct

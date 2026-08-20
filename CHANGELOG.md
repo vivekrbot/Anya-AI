@@ -3,6 +3,27 @@
 All notable changes to Anya AI are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] — 2026-08-20
+
+### Fixed
+- **All requests failed with a 404.** Groq decommissioned every model the
+  extension shipped with — `llama-3.1-8b-instant` (the default) and
+  `llama-3.3-70b-versatile` shut down on 2026-08-16, and
+  `llama-3.1-70b-versatile`, `mixtral-8x7b-32768`, and `gemma2-9b-it` earlier.
+  The model list now tracks Groq's current production lineup:
+  `openai/gpt-oss-20b` (default, fastest), `openai/gpt-oss-120b` (quality), and
+  `qwen/qwen3.6-27b` (balanced).
+- Saved settings naming a retired model are migrated to its replacement on
+  read, so existing installs recover without visiting Settings.
+- **Test API key** no longer probes a decommissioned model, which made valid
+  keys report as invalid.
+
+### Changed
+- A 404 now reports which model is unavailable instead of a generic
+  "API error (404)".
+- Reasoning is suppressed on the new models so it can't consume the token
+  budget or leak into pasted text.
+
 ## [1.0.2] — 2026-07-07
 
 ### Changed

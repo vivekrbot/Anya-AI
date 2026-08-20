@@ -1,4 +1,15 @@
-import { DEFAULT_SETTINGS } from './constants.js';
+import { DEFAULT_SETTINGS, LEGACY_MODEL_MAP, MODELS } from './constants.js';
+
+const VALID_MODEL_IDS = MODELS.map((m) => m.id);
+
+// Saved settings outlive model lifecycles: a stored `model` may name something
+// Groq has since decommissioned, which fails every request with a 404. Map the
+// known retirements to their replacements and fall back to the default for
+// anything else we no longer recognize.
+function migrateModel(model) {
+  if (VALID_MODEL_IDS.indexOf(model) !== -1) return model;
+  return LEGACY_MODEL_MAP[model] || DEFAULT_SETTINGS.model;
+}
 
 export async function getApiKey() {
   const result = await chrome.storage.local.get('apiKey');
@@ -11,7 +22,16 @@ export async function saveApiKey(key) {
 
 export async function getSettings() {
   const result = await chrome.storage.sync.get('settings');
-  return { ...DEFAULT_SETTINGS, ...(result.settings || {}) };
+  const settings = { ...DEFAULT_SETTINGS, ...(result.settings || {}) };
+  const model = migrateModel(settings.model);
+
+  if (model !== settings.model) {
+    settings.model = model;
+    // Persist so the options page shows the migrated choice too.
+    await chrome.storage.sync.set({ settings });
+  }
+
+  return settings;
 }
 
 export async function saveSettings(settings) {
