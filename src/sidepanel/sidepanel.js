@@ -1,4 +1,4 @@
-import { MESSAGE_TYPES, MAX_TEXT_LENGTH } from '../shared/constants.js';
+import { ACTIONS, MESSAGE_TYPES, MAX_TEXT_LENGTH } from '../shared/constants.js';
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -15,6 +15,7 @@ let lastPageSelection = '';
 
 // DOM references
 const selectedTextEl = $('#selectedText');
+const aiInstructionText = $('#aiInstructionText');
 const commentModeToggle = $('#commentModeToggle');
 const resultPanel = $('#resultPanel');
 const resultText = $('#resultText');
@@ -347,6 +348,17 @@ $$('.action-btn, .ai-suggest-btn').forEach((btn) => {
   });
 });
 
+// Generate button — runs the AI Instruction field standalone (works with or
+// without selected text; an action button click also picks up this field as
+// extra guidance, handled inside processText()).
+$('#btnGenerateInstruction').addEventListener('click', () => {
+  if (!aiInstructionText.value.trim()) {
+    showError('Please enter an instruction.');
+    return;
+  }
+  processText(ACTIONS.CUSTOM_INSTRUCTION);
+});
+
 // Result buttons
 $('#btnReplace').addEventListener('click', async () => {
   if (!currentResult || !currentTabId) return;
@@ -414,14 +426,20 @@ $('#btnSettings').addEventListener('click', () => {
 // Process text with AI
 async function processText(action) {
   const text = selectedTextEl.value.trim();
-  if (!text) {
+  const instruction = aiInstructionText.value.trim();
+  const isCustomInstruction = action === ACTIONS.CUSTOM_INSTRUCTION;
+
+  // Every other action still needs selected text; the standalone AI
+  // Instruction path (Generate button) is allowed to run with no text and
+  // generate fresh content from the instruction alone.
+  if (!text && !isCustomInstruction) {
     showError('No text selected. Select text on the page first.');
     return;
   }
 
-  if (text.length > MAX_TEXT_LENGTH) {
+  if (text.length + instruction.length > MAX_TEXT_LENGTH) {
     showError(
-      `Text is too long (${text.length} chars). Maximum is ${MAX_TEXT_LENGTH} characters.`
+      `Text is too long (${text.length + instruction.length} chars). Maximum is ${MAX_TEXT_LENGTH} characters.`
     );
     return;
   }
@@ -436,6 +454,7 @@ async function processText(action) {
       type: MESSAGE_TYPES.PROCESS_TEXT,
       action,
       text,
+      instruction,
       commentMode: commentModeToggle.checked,
       isInInput,
     });
@@ -504,6 +523,7 @@ function disableButtons(disabled) {
   $$('.action-btn, .ai-suggest-btn').forEach((btn) => {
     btn.disabled = disabled;
   });
+  $('#btnGenerateInstruction').disabled = disabled;
 }
 
 function disableCommentButtons(disabled) {

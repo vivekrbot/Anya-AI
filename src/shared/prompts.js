@@ -81,6 +81,15 @@ RULES:
 - Return only the final prompt text, ready to copy and paste as-is. No preamble, no explanation, no labels, no extra commentary.`,
     instruction: 'Convert the following plain-English description into an image prompt:',
   },
+  [ACTIONS.CUSTOM_INSTRUCTION]: {
+    system: `You are a versatile writing and content-generation assistant. The user gives you a free-form instruction describing what they want, and optionally a piece of reference text.
+
+- If reference text is provided, treat the instruction as directions for how to transform, rewrite, or use that text.
+- If no reference text is provided (it will be empty), treat the instruction as a request to generate new content from scratch that fulfills it.
+
+Follow the instruction closely and honor every constraint it states. Return only the resulting text with no preamble, no labels, no headers, and no explanation.`,
+    instruction: 'Follow this instruction:',
+  },
 };
 
 const COMMENT_MODE_PROMPTS = {
@@ -326,7 +335,16 @@ const LENGTH_MODIFIERS = {
   long: 'Write a detailed comment of 3-5 sentences. Add depth but don\'t ramble.',
 };
 
-export function buildPrompt(action, text, { commentMode = false, isInInput = false } = {}) {
+// Appended to an action's system prompt when the user also filled in the AI
+// Instruction field alongside a fixed action button — lets the two combine
+// (e.g. "Shorten" + "make it sound like a pirate") without touching any of
+// the per-action prompts above.
+function withExtraInstruction(system, extraInstruction) {
+  if (!extraInstruction) return system;
+  return `${system} Additionally, the user asks: "${extraInstruction}". Follow this closely while performing the task above.`;
+}
+
+export function buildPrompt(action, text, { commentMode = false, isInInput = false, extraInstruction = '' } = {}) {
   if (commentMode) {
     const mode = isInInput ? 'rewrite' : 'reply';
     const prompt = COMMENT_MODE_PROMPTS[mode];
@@ -334,13 +352,13 @@ export function buildPrompt(action, text, { commentMode = false, isInInput = fal
     if (action && ACTION_PROMPTS[action]) {
       const actionPrompt = ACTION_PROMPTS[action];
       return {
-        system: `${prompt.system} Additionally: ${actionPrompt.system.toLowerCase()}`,
+        system: withExtraInstruction(`${prompt.system} Additionally: ${actionPrompt.system.toLowerCase()}`, extraInstruction),
         user: `${prompt.instruction}\n\n${text}`,
       };
     }
 
     return {
-      system: prompt.system,
+      system: withExtraInstruction(prompt.system, extraInstruction),
       user: `${prompt.instruction}\n\n${text}`,
     };
   }
@@ -348,14 +366,30 @@ export function buildPrompt(action, text, { commentMode = false, isInInput = fal
   const actionPrompt = ACTION_PROMPTS[action];
   if (!actionPrompt) {
     return {
-      system: 'You are a helpful writing assistant. Return only the improved text with no preamble or explanation.',
+      system: withExtraInstruction('You are a helpful writing assistant. Return only the improved text with no preamble or explanation.', extraInstruction),
       user: `Improve the following text:\n\n${text}`,
     };
   }
 
   return {
-    system: actionPrompt.system,
+    system: withExtraInstruction(actionPrompt.system, extraInstruction),
     user: `${actionPrompt.instruction}\n\n${text}`,
+  };
+}
+
+// Standalone AI Instruction path (Generate button, no action button clicked).
+// Unlike buildPrompt, the user message here is instruction + optional
+// reference text rather than a fixed instruction + text pair.
+export function buildCustomInstructionPrompt(instruction, text) {
+  const prompt = ACTION_PROMPTS[ACTIONS.CUSTOM_INSTRUCTION];
+  const trimmedText = (text || '').trim();
+  const referenceBlock = trimmedText
+    ? `Reference text:\n${trimmedText}`
+    : 'Reference text: (none provided — generate new content from scratch)';
+
+  return {
+    system: prompt.system,
+    user: `${prompt.instruction} ${instruction}\n\n${referenceBlock}`,
   };
 }
 

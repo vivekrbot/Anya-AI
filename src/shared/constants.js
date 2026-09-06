@@ -10,6 +10,7 @@ export const ACTIONS = {
   AI_SUGGEST: 'ai_suggest',
   REFINE_PROMPT: 'refine_prompt',
   REFINE_PROMPT_IMAGE: 'refine_prompt_image',
+  CUSTOM_INSTRUCTION: 'custom_instruction',
 };
 
 export const COMMENT_ACTIONS = {

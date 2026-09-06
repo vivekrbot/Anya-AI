@@ -1,11 +1,12 @@
 import {
+  ACTIONS,
   MESSAGE_TYPES,
   GROQ_API_URL,
   MAX_TEXT_LENGTH,
   VALIDATION_MODEL,
 } from '../shared/constants.js';
 import { getApiKey, getSettings } from '../shared/storage.js';
-import { buildPrompt, buildCommentPrompt } from '../shared/prompts.js';
+import { buildPrompt, buildCommentPrompt, buildCustomInstructionPrompt } from '../shared/prompts.js';
 
 // Inject content script into the active tab (idempotent — guarded in content-script.js)
 async function ensureContentScript(tabId) {
@@ -129,11 +130,20 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type === MESSAGE_TYPES.PROCESS_TEXT) {
     (async function () {
       try {
-        if (!message.text || typeof message.text !== 'string') {
+        var text = typeof message.text === 'string' ? message.text : '';
+        var instruction = typeof message.instruction === 'string' ? message.instruction.trim() : '';
+        var isCustomInstruction = message.action === ACTIONS.CUSTOM_INSTRUCTION;
+
+        if (isCustomInstruction) {
+          if (!instruction) {
+            sendResponse({ error: 'Please enter an instruction.' });
+            return;
+          }
+        } else if (!text) {
           sendResponse({ error: 'No text provided.' });
           return;
         }
-        if (message.text.length > MAX_TEXT_LENGTH) {
+        if (text.length + instruction.length > MAX_TEXT_LENGTH) {
           sendResponse({ error: 'Text exceeds maximum length (' + MAX_TEXT_LENGTH + ' chars).' });
           return;
         }
@@ -149,14 +159,17 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         var settings = await getSettings();
         var prompt;
         if (message.commentAction) {
-          prompt = buildCommentPrompt(message.action, message.text, {
+          prompt = buildCommentPrompt(message.action, text, {
             tone: message.tone || 'auto',
             length: message.length || 'auto',
           });
+        } else if (isCustomInstruction) {
+          prompt = buildCustomInstructionPrompt(instruction, text);
         } else {
-          prompt = buildPrompt(message.action, message.text, {
+          prompt = buildPrompt(message.action, text, {
             commentMode: message.commentMode || false,
             isInInput: message.isInInput || false,
+            extraInstruction: instruction,
           });
         }
 

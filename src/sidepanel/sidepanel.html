@@ -47,6 +47,13 @@
         <textarea id="selectedText" class="text-area" placeholder="Select text on the page, or paste/type here..." autocomplete="off"></textarea>
       </div>
 
+      <!-- AI Instruction (free-form idea/instruction, standalone or combined with an action below) -->
+      <div class="section">
+        <div class="section-label">AI INSTRUCTION</div>
+        <textarea id="aiInstructionText" class="text-area" placeholder='Describe what you want — e.g. "make this more concise" (with text selected), or "write a LinkedIn post announcing our launch" (with nothing selected)' autocomplete="off"></textarea>
+        <button id="btnGenerateInstruction" class="generate-comment-btn" style="margin-top: 8px;">Generate</button>
+      </div>
+
       <!-- AI Suggest (primary one-click magic button) -->
       <div class="section">
         <button class="ai-suggest-btn" data-action="ai_suggest">
