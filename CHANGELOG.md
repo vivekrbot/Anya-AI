@@ -3,6 +3,19 @@
 All notable changes to Anya AI are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.4] — 2026-09-06
+
+### Added
+- **AI Instruction** field in Writing mode, with its own **Generate** button:
+  - With text selected, describe how to change it (e.g. "make this sound like
+    a pirate") and Generate rewrites the selection accordingly.
+  - With nothing selected, describe an idea (e.g. "write a 3-sentence launch
+    announcement for a note-taking app") and Generate creates new content from
+    scratch.
+  - Can be combined with any action button (Improve Writing, Shorten, Frank
+    Tone, AI Suggest, Prompt Tools, ...) — the instruction is layered on top
+    of that action as extra guidance, rather than replacing it.
+
 ## [1.0.3] — 2026-08-20
 
 ### Fixed

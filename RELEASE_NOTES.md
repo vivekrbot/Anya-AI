@@ -1,43 +1,22 @@
-# Anya AI v1.0.3 🔧
+# Anya AI v1.0.4 ✨
 
-**Required update.** Groq retired the models Anya AI shipped with, so every
-action in v1.0.2 and earlier now fails with an `API error (404)`. This release
-moves to Groq's current models and repairs existing installs automatically.
+New in this release: an **AI Instruction** field in Writing mode. Instead of
+being limited to the fixed action list, type what you want in plain English —
+use it on its own, or stack it on top of any existing action.
 
-## 🐛 What was broken
+## 🆕 What's new
 
-Groq [decommissioned](https://console.groq.com/docs/deprecations) every model in
-the extension's list. The default one, `llama-3.1-8b-instant`, shut down on
-**16 August 2026** — which is when Improve, Fix Grammar, tone changes, comments,
-and Prompt Tools all started returning a 404.
+**AI Instruction field.** A new box sits right under Selected Text in Writing
+mode, with its own **Generate** button.
 
-`llama-3.3-70b-versatile` shut down the same day; `llama-3.1-70b-versatile`,
-`mixtral-8x7b-32768`, and `gemma2-9b-it` had gone earlier.
-
-## 🆕 What's changed
-
-**New models.** Anya AI now runs on Groq's current production lineup:
-
-| Model | Use it for |
+| You do this | Anya does this |
 |---|---|
-| **GPT-OSS 20B** *(new default)* | Fastest responses — the right pick for rewrites, tone changes, and comments |
-| **GPT-OSS 120B** | Higher quality when you want a more considered result |
-| **Qwen 3.6 27B** | A balanced middle ground |
+| Select text, type an instruction (e.g. *"make this sound like a pirate"*), click **Generate** | Rewrites the selected text per your instruction |
+| Leave nothing selected, type an idea (e.g. *"write a 3-sentence launch announcement for a note-taking app"*), click **Generate** | Generates new content from scratch |
+| Type an instruction **and** click an existing action (Improve Writing, Shorten, Frank Tone, AI Suggest, Prompt Tools, ...) | Runs that action as usual, with your instruction applied on top as extra guidance |
 
-**Your settings migrate themselves.** If you'd saved a model in Settings, that
-choice pointed at a model that no longer exists. Anya AI now detects a retired
-model and switches you to its modern equivalent on the next run — you don't have
-to open Settings or reconfigure anything.
-
-**"Test API key" works again.** Key testing was checking against a
-decommissioned model, so it reported perfectly valid keys as invalid.
-
-**Clearer errors.** If a model is ever retired again, you'll see which model is
-unavailable and what to do, instead of a bare `API error (404)`.
-
-**Faster, cleaner output.** The new models reason before answering, so internal
-reasoning is now suppressed — it can't eat into your response length or leak
-into the text pasted back into the page.
+Leave the field empty and every action button behaves exactly as before —
+nothing about the existing Writing or Comment mode workflows changes.
 
 ## ✅ Still included
 
@@ -49,21 +28,21 @@ Prompting), local-only API key, bundled fonts, no tracking. See
 
 ## 📦 Install / Update
 
-1. Download **`anya-ai-v1.0.3.zip`** below.
+1. Download **`anya-ai-v1.0.4.zip`** below.
 2. Unzip it to a folder you'll keep. On Windows, use a clean extraction so no files
    are dropped:
    ```powershell
-   Unblock-File "$HOME\Downloads\anya-ai-v1.0.3.zip"
-   Expand-Archive "$HOME\Downloads\anya-ai-v1.0.3.zip" -DestinationPath "$HOME\Anya-AI" -Force
+   Unblock-File "$HOME\Downloads\anya-ai-v1.0.4.zip"
+   Expand-Archive "$HOME\Downloads\anya-ai-v1.0.4.zip" -DestinationPath "$HOME\Anya-AI" -Force
    ```
 3. Open `chrome://extensions` → enable **Developer mode**.
 4. Click **Load unpacked** → select the folder that contains `manifest.json`.
 5. Open Settings (gear icon) and add your free
    [Groq API key](https://console.groq.com/keys) — the in-app guide walks you through it.
 
-> **Updating from v1.0.2?** Replace your existing folder's contents with the new
+> **Updating from v1.0.3?** Replace your existing folder's contents with the new
 > zip, then hit refresh on the Anya AI card in `chrome://extensions`. Your API key
-> and settings carry over, and the retired model is swapped out for you.
+> and settings carry over unchanged.
 
 ## 🙏 Credits
 

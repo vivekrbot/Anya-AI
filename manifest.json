@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Anya AI",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "AI Writing Assistant — Rewrite, fix grammar, change tone, and generate content powered by Groq.",
   "permissions": [
     "activeTab",
